@@ -1,106 +1,37 @@
 import React from 'react';
-import { CATEGORIES } from './constants';
-import { useScroll } from './hooks/useScroll';
-import { useShop } from './hooks/useShop';
-
-// Components
-import { Navbar } from './components/Navbar';
-import { HeroSection } from './components/HeroSection';
-import { Marquee } from './components/Marquee';
-import { ProductTicker } from './components/ProductTicker';
-import { NewArrivals } from './components/NewArrivals';
-import { CategoryFilter } from './components/CategoryFilter';
-import { ProductGrid } from './components/ProductGrid';
-import { Footer } from './components/Footer';
-import { SearchModal } from './components/SearchModal';
-import { WishlistDrawer } from './components/WishlistDrawer';
-import { CartDrawer } from './components/CartDrawer';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ShopLayout } from './src/layouts/ShopLayout';
+import { AdminLayout } from './src/components/admin/AdminLayout';
+import { Dashboard } from './src/pages/admin/Dashboard';
+import { Categories } from './src/pages/admin/Categories';
+import { Products } from './src/pages/admin/Products';
+import { Brands } from './src/pages/admin/Brands';
+import { Login } from './src/pages/admin/Login';
+import { Register } from './src/pages/admin/Register';
 
 export default function App() {
-  // Logic Extract
-  const scrolled = useScroll();
-  const {
-    selectedCategory, setSelectedCategory,
-    cart, addToCart, removeFromCart, updateQuantity, cartTotal, cartCount,
-    wishlist, toggleWishlist, wishlistProducts,
-    isCartOpen, setIsCartOpen,
-    isWishlistOpen, setIsWishlistOpen,
-    isSearchOpen, setIsSearchOpen,
-    searchQuery, setSearchQuery, filteredProducts,
-    newArrivals
-  } = useShop();
-
   return (
-    <div className="min-h-screen flex flex-col bg-white font-sans">
-      <Navbar
-        scrolled={scrolled}
-        cartCount={cartCount}
-        wishlistCount={wishlist.size}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenWishlist={() => setIsWishlistOpen(true)}
-        onOpenSearch={() => setIsSearchOpen(true)}
-      />
+    <BrowserRouter>
+      <Routes>
+        {/* Public Shop Routes */}
+        <Route path="/" element={<ShopLayout />} />
 
-      <SearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        filteredProducts={filteredProducts}
-      />
+        {/* Admin Auth */}
+        <Route path="/admin/login" element={<Login />} />
+        <Route path="/admin/register" element={<Register />} />
 
-      <HeroSection />
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="brands" element={<Brands />} />
+          <Route path="categories" element={<Categories />} />
+          <Route path="products" element={<Products />} />
+        </Route>
 
-      <Marquee />
-
-      <ProductTicker onAddToCart={addToCart} />
-
-      <NewArrivals
-        products={newArrivals}
-        wishlist={wishlist}
-        onAddToCart={addToCart}
-        onToggleWishlist={toggleWishlist}
-      />
-
-      <div id="catalog" />
-
-      <CategoryFilter
-        categories={CATEGORIES}
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
-      />
-
-      <ProductGrid
-        products={filteredProducts}
-        wishlist={wishlist}
-        onAddToCart={addToCart}
-        onToggleWishlist={toggleWishlist}
-        selectedCategory={selectedCategory}
-        onClearSearch={() => {
-          setSelectedCategory('Todo');
-          setSearchQuery('');
-        }}
-      />
-
-      <Footer />
-
-      <WishlistDrawer
-        isOpen={isWishlistOpen}
-        onClose={() => setIsWishlistOpen(false)}
-        wishlistItems={wishlistProducts}
-        onAddToCart={addToCart}
-        onRemove={toggleWishlist}
-      />
-
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cart={cart}
-        cartCount={cartCount}
-        cartTotal={cartTotal}
-        onRemove={removeFromCart}
-        onUpdateQuantity={updateQuantity}
-      />
-    </div>
+        {/* Catch all */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

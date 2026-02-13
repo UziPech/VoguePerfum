@@ -15,8 +15,9 @@ interface AuthState {
     isLoading: boolean;
 }
 
+const storedUser = localStorage.getItem('user');
 const initialState: AuthState = {
-    user: null, // Debería persistir con localStorage o redux-persist
+    user: storedUser ? JSON.parse(storedUser) : null,
     token: localStorage.getItem('token'),
     isAuthenticated: !!localStorage.getItem('token'),
     isLoading: false,

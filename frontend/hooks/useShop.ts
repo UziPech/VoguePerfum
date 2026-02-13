@@ -1,11 +1,15 @@
 import { useState, useMemo } from 'react';
 import { Product, CartItem, Category } from '../types';
-import { MOCK_PRODUCTS } from '../constants';
+import { useGetProductsQuery } from '../src/store/api/catalogApi';
 
 export function useShop() {
     const [selectedCategory, setSelectedCategory] = useState<Category>('Todo');
     const [cart, setCart] = useState<CartItem[]>([]);
     const [wishlist, setWishlist] = useState<Set<number>>(new Set());
+
+    // Fetch Products from API
+    const { data, isLoading } = useGetProductsQuery({ limit: 100 });
+    const products: Product[] = data?.data || [];
 
     // Modals State
     const [isCartOpen, setIsCartOpen] = useState(false);
@@ -16,21 +20,24 @@ export function useShop() {
 
     // Filter Products
     const filteredProducts = useMemo(() => {
-        return MOCK_PRODUCTS.filter(product => {
+        if (isLoading) return [];
+        return products.filter(product => {
             const matchesCategory = selectedCategory === 'Todo' || product.category === selectedCategory;
             const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 product.brand.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesCategory && matchesSearch;
         });
-    }, [selectedCategory, searchQuery]);
+    }, [selectedCategory, searchQuery, products, isLoading]);
 
     // Wishlist Products
     const wishlistProducts = useMemo(() => {
-        return MOCK_PRODUCTS.filter(product => wishlist.has(product.id));
-    }, [wishlist]);
+        return products.filter(product => wishlist.has(product.id));
+    }, [wishlist, products]);
 
     // New Arrivals (Just for the Slider)
-    const newArrivals = MOCK_PRODUCTS.slice(0, 5); // Take first 5 as "New"
+    const newArrivals = useMemo(() => {
+        return products.slice(0, 5);
+    }, [products]);
 
     // Cart Actions
     const addToCart = (product: Product) => {
@@ -94,6 +101,8 @@ export function useShop() {
         updateQuantity,
         cartTotal,
         cartCount,
-        toggleWishlist
+        toggleWishlist,
+        isLoading,
+        allProducts: products
     };
 }

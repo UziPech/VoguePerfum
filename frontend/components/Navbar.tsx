@@ -1,5 +1,7 @@
 import React from 'react';
-import { Menu, Search, Heart, ShoppingBag } from 'lucide-react';
+import { Menu, Search, Heart, ShoppingBag, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { User as UserType } from '../src/store/slices/authSlice';
 
 interface NavbarProps {
     scrolled: boolean;
@@ -8,6 +10,7 @@ interface NavbarProps {
     onOpenCart: () => void;
     onOpenWishlist: () => void;
     onOpenSearch: () => void;
+    user?: UserType | null;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -16,13 +19,14 @@ export const Navbar: React.FC<NavbarProps> = ({
     wishlistCount,
     onOpenCart,
     onOpenWishlist,
-    onOpenSearch
+    onOpenSearch,
+    user
 }) => {
     return (
         <nav
             className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out ${scrolled
-                    ? 'bg-white/80 backdrop-blur-xl border-b border-gray-100 text-black py-4'
-                    : 'bg-transparent text-white py-6'
+                ? 'bg-white/80 backdrop-blur-xl border-b border-gray-100 text-black py-4'
+                : 'bg-transparent text-white py-6'
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -42,6 +46,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                         <button onClick={onOpenSearch} className="hover:opacity-70 transition-opacity">
                             <Search className="w-5 h-5 md:w-6 md:h-6" />
                         </button>
+
+                        <Link to={user ? "/admin" : "/admin/login"} className="hover:opacity-70 transition-opacity">
+                            <User className="w-5 h-5 md:w-6 md:h-6" />
+                        </Link>
 
                         <button
                             onClick={onOpenWishlist}

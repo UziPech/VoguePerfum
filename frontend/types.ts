@@ -1,4 +1,4 @@
-export type Category = 'Todo' | 'Hombre' | 'Mujer' | 'Unisex' | 'Sets';
+export type Category = string;
 
 export interface Product {
   id: number;

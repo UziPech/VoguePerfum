@@ -5,7 +5,7 @@ import { RootState } from '../store';
 export const catalogApi = createApi({
     reducerPath: 'catalogApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:3000/api', // Backend local
+        baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
         prepareHeaders: (headers, { getState }) => {
             // Add token to headers if it exists
             const token = (getState() as RootState).auth.token;
@@ -17,20 +17,74 @@ export const catalogApi = createApi({
     }),
     tagTypes: ['Products', 'Categories'],
     endpoints: (builder) => ({
-        // Placeholder endpoints
+        login: builder.mutation({
+            query: (credentials) => ({
+                url: '/auth/login',
+                method: 'POST',
+                body: credentials,
+            }),
+        }),
+        register: builder.mutation({
+            query: (userData) => ({
+                url: '/auth/register',
+                method: 'POST',
+                body: userData,
+            }),
+        }),
         getProducts: builder.query({
-            query: (params) => ({
-                url: 'products',
-                params,
+            query: ({ page = 1, limit = 12, category_slug }: any = {}) => ({
+                url: '/products',
+                params: { page, limit, category_slug },
             }),
             providesTags: ['Products'],
         }),
-        getCategories: builder.query({
-            query: () => 'categories',
+        getCategories: builder.query<any, void>({
+            query: () => '/categories',
             providesTags: ['Categories'],
+        }),
+        // Dashboard
+        getDashboardStats: builder.query<any, void>({
+            query: () => '/dashboard/stats',
+        }),
+        // Brands
+        getBrands: builder.query<any, void>({
+            query: () => '/brands',
+        }),
+        createCategory: builder.mutation({
+            query: (categoryData) => ({
+                url: '/categories',
+                method: 'POST',
+                body: categoryData,
+            }),
+            invalidatesTags: ['Categories'],
+        }),
+        createBrand: builder.mutation({
+            query: (brandData) => ({
+                url: '/brands',
+                method: 'POST',
+                body: brandData,
+            }),
+        }),
+        createProduct: builder.mutation({
+            query: (productData) => ({
+                url: '/products',
+                method: 'POST',
+                body: productData,
+            }),
+            invalidatesTags: ['Products'],
         }),
     }),
 });
 
 // Export hooks for usage in functional components
-export const { useGetProductsQuery, useGetCategoriesQuery } = catalogApi;
+export const {
+    useGetProductsQuery,
+    useGetCategoriesQuery,
+    useLoginMutation,
+    useRegisterMutation,
+    useGetDashboardStatsQuery,
+    useGetBrandsQuery,
+    useCreateBrandMutation,
+    useCreateProductMutation,
+    useCreateCategoryMutation
+} = catalogApi;

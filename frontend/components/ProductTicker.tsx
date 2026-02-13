@@ -1,14 +1,14 @@
 import React from 'react';
-import { MOCK_PRODUCTS } from '../constants';
 import { Product } from '../types';
 
 interface ProductTickerProps {
+    products: Product[];
     onAddToCart: (product: Product) => void;
 }
 
-export const ProductTicker: React.FC<ProductTickerProps> = ({ onAddToCart }) => {
+export const ProductTicker: React.FC<ProductTickerProps> = ({ products, onAddToCart }) => {
     // Duplicate products to ensure seamless scrolling
-    const tickerProducts = [...MOCK_PRODUCTS, ...MOCK_PRODUCTS, ...MOCK_PRODUCTS];
+    const tickerProducts = [...products, ...products, ...products];
 
     return (
         <div className="bg-white py-8 overflow-hidden border-b border-gray-100">
