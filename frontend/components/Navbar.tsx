@@ -47,9 +47,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                             <Search className="w-5 h-5 md:w-6 md:h-6" />
                         </button>
 
-                        <Link to={user ? "/admin" : "/admin/login"} className="hover:opacity-70 transition-opacity">
-                            <User className="w-5 h-5 md:w-6 md:h-6" />
-                        </Link>
+                        {user?.role === 'admin' ? (
+                            <Link to="/admin/dashboard" className="hover:opacity-70 transition-opacity flex items-center gap-2">
+                                <span className="hidden md:block font-medium text-sm">Dashboard</span>
+                                <User className="w-5 h-5 md:w-6 md:h-6" />
+                            </Link>
+                        ) : (
+                            <Link to={user ? "/profile" : "/admin/login"} className="hover:opacity-70 transition-opacity">
+                                <User className="w-5 h-5 md:w-6 md:h-6" />
+                            </Link>
+                        )}
 
                         <button
                             onClick={onOpenWishlist}

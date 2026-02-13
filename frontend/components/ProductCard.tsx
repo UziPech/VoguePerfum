@@ -22,7 +22,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {/* Image Container */}
             <div className="relative aspect-square w-full bg-gray-100 mb-3 overflow-hidden rounded-lg">
                 <img
-                    src={product.image}
+                    src={product.image_url || product.image}
                     alt={product.name}
                     className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                 />
@@ -30,7 +30,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
 
                 {/* Badge (Top Left) */}
-                {product.isNew ? (
+                {(product.is_new || product.isNew) ? (
                     <span className="absolute top-3 left-3 bg-black text-white text-[10px] uppercase font-bold px-3 py-1 rounded-full tracking-widest">
                         New
                     </span>

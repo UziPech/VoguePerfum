@@ -22,9 +22,12 @@ export function useShop() {
     const filteredProducts = useMemo(() => {
         if (isLoading) return [];
         return products.filter(product => {
-            const matchesCategory = selectedCategory === 'Todo' || product.category === selectedCategory;
+            const categoryName = product.categories?.name || product.category;
+            const matchesCategory = selectedCategory === 'Todo' || categoryName === selectedCategory;
+
+            const brandName = product.brands?.name || product.brand || '';
             const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                product.brand.toLowerCase().includes(searchQuery.toLowerCase());
+                brandName.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesCategory && matchesSearch;
         });
     }, [selectedCategory, searchQuery, products, isLoading]);

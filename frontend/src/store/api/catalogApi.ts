@@ -73,6 +73,36 @@ export const catalogApi = createApi({
             }),
             invalidatesTags: ['Products'],
         }),
+        updateProduct: builder.mutation({
+            query: ({ id, ...productData }) => ({
+                url: `/products/${id}`,
+                method: 'PUT',
+                body: productData,
+            }),
+            invalidatesTags: ['Products'],
+        }),
+        deleteProduct: builder.mutation({
+            query: (id) => ({
+                url: `/products/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Products'],
+        }),
+        updateCategory: builder.mutation({
+            query: ({ id, ...categoryData }) => ({
+                url: `/categories/${id}`,
+                method: 'PUT',
+                body: categoryData,
+            }),
+            invalidatesTags: ['Categories'],
+        }),
+        deleteCategory: builder.mutation({
+            query: (id) => ({
+                url: `/categories/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Categories'],
+        }),
     }),
 });
 
@@ -86,5 +116,9 @@ export const {
     useGetBrandsQuery,
     useCreateBrandMutation,
     useCreateProductMutation,
-    useCreateCategoryMutation
+    useUpdateProductMutation,
+    useCreateCategoryMutation,
+    useUpdateCategoryMutation,
+    useDeleteProductMutation,
+    useDeleteCategoryMutation
 } = catalogApi;

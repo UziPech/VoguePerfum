@@ -31,7 +31,7 @@ export const ProductTicker: React.FC<ProductTickerProps> = ({ products, onAddToC
                     >
                         <div className="w-24 h-32 md:w-28 md:h-36 overflow-hidden bg-gray-100 border border-gray-100 mb-2 relative">
                             <img
-                                src={product.image}
+                                src={product.image_url || product.image}
                                 alt={product.name}
                                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
                             />
