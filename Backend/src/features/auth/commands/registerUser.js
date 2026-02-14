@@ -39,11 +39,34 @@ const registerUser = async (req, res) => {
 
         if (error) throw error;
 
-        // If signUp returns a user but identities is empty, it might be a silent existing user case,
-        // but our admin check above should catch it.
-        // Also check if user is already confirmed or not if needed.
+        // Check if we got a session (means email confirmation is disabled or auto-confirmed)
+        // If email confirmation is enabled, data.session will be null
+        const hasSession = data.session !== null;
 
-        res.status(201).json({ message: 'User created successfully', user: data.user });
+        // Prepare user response
+        const userResponse = {
+            id: data.user.id,
+            email: data.user.email,
+            role: 'customer',
+            name: name
+        };
+
+        if (hasSession) {
+            // Email confirmation disabled - return session for auto-login
+            res.status(201).json({
+                message: 'User created successfully',
+                user: userResponse,
+                token: data.session.access_token,
+                autoLogin: true
+            });
+        } else {
+            // Email confirmation enabled - user needs to verify email
+            res.status(201).json({
+                message: 'User created successfully. Please check your email to verify your account.',
+                user: userResponse,
+                autoLogin: false
+            });
+        }
     } catch (err) {
         console.error('Registration Error:', err);
         // ... rest of error handling

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { catalogApi } from '../../store/api/catalogApi';
+import { useAppDispatch } from '../../store/hooks';
+import { setCredentials } from '../../store/slices/authSlice';
 import { Eye, EyeOff, ChevronLeft } from 'lucide-react';
 
 export const Register: React.FC = () => {
@@ -10,6 +12,7 @@ export const Register: React.FC = () => {
     const [name, setName] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [register, { isLoading, error }] = catalogApi.useRegisterMutation();
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -38,14 +41,25 @@ export const Register: React.FC = () => {
         }
 
         try {
-            await register({ email, password, name }).unwrap();
-            // Redirect to verification page with email in state
-            navigate('/admin/verify-email', {
-                state: {
-                    email,
-                    message: 'Te hemos enviado un correo de confirmación. Por favor revisa tu bandeja de entrada.'
-                }
-            });
+            const result = await register({ email, password, name }).unwrap();
+
+            // Check if backend returned session for auto-login
+            if (result.autoLogin && result.token) {
+                // Auto-login: set credentials and redirect to home
+                dispatch(setCredentials({
+                    user: result.user,
+                    token: result.token
+                }));
+                navigate('/');
+            } else {
+                // Email confirmation required: redirect to verification page
+                navigate('/admin/verify-email', {
+                    state: {
+                        email,
+                        message: 'Te hemos enviado un correo de confirmación. Por favor revisa tu bandeja de entrada.'
+                    }
+                });
+            }
         } catch (err) {
             console.error('Registration failed:', err);
         }
