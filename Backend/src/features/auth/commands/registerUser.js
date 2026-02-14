@@ -19,11 +19,14 @@ const registerUser = async (req, res) => {
             console.error('Error checking existing users:', searchError);
             // Proceed to signUp anyway if search fails, or handle error
         } else {
-            const userExists = existingUsers.users.some(u => u.email === email);
+            // Filter out soft-deleted users (deleted_at is not null)
+            const activeUsers = existingUsers.users.filter(u => !u.deleted_at);
+            const userExists = activeUsers.some(u => u.email === email);
             if (userExists) {
                 return res.status(409).json({ error: 'Este correo electrónico ya está registrado.' });
             }
         }
+
 
         // 2. Create user
         const { data, error } = await supabase.auth.signUp({
