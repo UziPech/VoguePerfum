@@ -26,7 +26,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     // WhatsApp Checkout
     const handleCheckout = () => {
         const message = `Hola, me gustaría ordenar los siguientes productos:\n\n${cart.map(item => `- ${item.name} (${item.quantity}) - $${item.price * item.quantity}`).join('\n')}\n\nTotal: $${cartTotal.toFixed(2)}`;
-        const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        const url = `https://wa.me/529994841525?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
     };
 

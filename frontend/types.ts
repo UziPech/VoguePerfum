@@ -29,6 +29,9 @@ export interface Product {
     total_reviews: number;
     average_rating: number;
   };
+  product_badges_view?: Array<{
+    badge_type: 'NEW' | 'BEST' | null;
+  }>;
 }
 
 export interface CartItem extends Product {

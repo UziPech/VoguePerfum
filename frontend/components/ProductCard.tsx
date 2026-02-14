@@ -35,14 +35,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 {/* Overlay on hover */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
 
-                {/* Badge (Top Left) */}
-                {(product.is_new || product.isNew) ? (
-                    <span className="absolute top-3 left-3 bg-black text-white text-[10px] uppercase font-bold px-3 py-1 rounded-full tracking-widest">
-                        New
-                    </span>
-                ) : (
-                    <span className="absolute top-3 left-3 bg-black text-white text-[10px] uppercase font-bold px-3 py-1 rounded-full tracking-widest">
-                        Bestseller
+                {/* Dynamic Badge (Top Left) */}
+                {product.product_badges_view?.[0]?.badge_type && (
+                    <span
+                        className={`absolute top-3 left-3 text-white text-[10px] uppercase font-bold px-3 py-1 rounded-full tracking-widest ${product.product_badges_view[0].badge_type === 'NEW'
+                                ? 'bg-black'
+                                : 'bg-gradient-to-r from-amber-500 to-yellow-600'
+                            }`}
+                    >
+                        {product.product_badges_view[0].badge_type}
                     </span>
                 )}
 

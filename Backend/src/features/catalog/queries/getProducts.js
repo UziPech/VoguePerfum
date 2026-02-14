@@ -29,22 +29,30 @@ const getProducts = async (req, res) => {
 
         if (error) throw error;
 
-        // Fetch Stats manually for these products
+        // Fetch Stats and Badges manually for these products
         const productIds = products.map(p => p.id);
+
         const { data: stats } = await supabase
             .from('product_stats_view')
             .select('*')
             .in('product_id', productIds);
 
-        // Merge stats into products
+        const { data: badges } = await supabase
+            .from('product_badges_view')
+            .select('*')
+            .in('product_id', productIds);
+
+        // Merge stats and badges into products
         const productsWithStats = products.map(p => {
-            const stat = stats.find(s => s.product_id === p.id);
+            const stat = stats?.find(s => s.product_id === p.id);
+            const badge = badges?.find(b => b.product_id === p.id);
             return {
                 ...p,
                 stats: {
                     total_reviews: stat ? stat.total_reviews : 0,
                     average_rating: stat ? Number(stat.average_rating) : 0
-                }
+                },
+                product_badges_view: badge ? [{ badge_type: badge.badge_type }] : []
             };
         });
 

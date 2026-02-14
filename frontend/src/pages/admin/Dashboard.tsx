@@ -3,14 +3,13 @@ import { LayoutDashboard, Tag, Package, ShoppingBag, Loader2 } from 'lucide-reac
 import { useGetDashboardStatsQuery } from '../../store/api/catalogApi';
 
 const StatCard = ({ title, value, icon: Icon, color }: any) => (
-    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
-        <div>
-            <p className="text-sm font-serif text-gray-500 mb-1 italic">{title}</p>
-            <h3 className="text-3xl font-serif font-bold text-gray-900">{value}</h3>
+    <div className="bg-white p-4 sm:p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col sm:flex-row items-center justify-between hover:shadow-md transition-shadow gap-3">
+        <div className="text-center sm:text-left">
+            <p className="text-xs sm:text-sm font-serif text-gray-500 mb-1 italic">{title}</p>
+            <h3 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900">{value}</h3>
         </div>
-        <div className={`p-3 rounded-full ${color} bg-opacity-10`}>
-            {/* Note: In vintage theme, we use muted icon colors */}
-            <Icon className={`w-6 h-6 text-gray-800`} />
+        <div className={`p-2 sm:p-3 rounded-full ${color} bg-opacity-10 shrink-0`}>
+            <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-800" />
         </div>
     </div>
 );
@@ -38,8 +37,8 @@ export const Dashboard: React.FC = () => {
                 <p className="text-gray-500 mt-2 font-serif italic">Bienvenido al panel de administración de Vogue Perfum.</p>
             </header>
 
-            {/* Stats Grid - Fixed responsiveness */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+            {/* Stats Grid - Mobile optimized with 2 columns */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-6">
                 <StatCard
                     title="Total Productos"
                     value={totalProducts}

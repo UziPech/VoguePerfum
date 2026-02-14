@@ -49,7 +49,7 @@ export const Login: React.FC = () => {
                     <img src="/logo.png" alt="Vogue Perfum" className="h-16 mx-auto mb-4 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
 
                     <h1 className="text-3xl font-bold text-gray-900 uppercase tracking-[0.2em] font-sans">Vogue Perfum</h1>
-                    <p className="text-gray-500 mt-2 text-sm tracking-wide">Acceso Administrativo</p>
+                    <p className="text-gray-500 mt-2 text-sm tracking-wide">Se parte de nuestra comunidad</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">

@@ -156,10 +156,11 @@ export const Products: React.FC = () => {
                             resetForm();
                             setIsModalOpen(true);
                         }}
-                        className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+                        className="flex items-center gap-2 bg-black text-white px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors min-h-[44px]"
                     >
                         <Plus className="w-5 h-5" />
-                        Nuevo Producto
+                        <span className="hidden sm:inline">Nuevo Producto</span>
+                        <span className="sm:hidden">Nuevo</span>
                     </button>
                 )}
             </div>
@@ -180,7 +181,7 @@ export const Products: React.FC = () => {
             {/* Create/Edit Product Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white rounded-xl p-4 sm:p-6 md:p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                         <h2 className="text-2xl font-serif font-bold mb-6">
                             {editingId ? 'Editar Producto' : 'Nuevo Producto'}
                         </h2>

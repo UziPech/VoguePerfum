@@ -6,7 +6,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: [
+        'http://localhost:5173',  // Local development
+        'https://vogueperfum-frontend.vercel.app',  // Production
+        'https://vogueperfum-frontend-i205laut1-uziels-projects-fa4bbf7c.vercel.app'  // Vercel preview URLs
+    ],
+    credentials: true
+}));
 app.use(express.json());
 
 const apiRoutes = require('./routes/api');
