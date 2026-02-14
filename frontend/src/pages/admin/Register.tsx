@@ -39,8 +39,13 @@ export const Register: React.FC = () => {
 
         try {
             await register({ email, password, name }).unwrap();
-            alert('Cuenta creada exitosamente. Por favor inicia sesión.');
-            navigate('/admin/login');
+            // Redirect to verification page with email in state
+            navigate('/admin/verify-email', {
+                state: {
+                    email,
+                    message: 'Te hemos enviado un correo de confirmación. Por favor revisa tu bandeja de entrada.'
+                }
+            });
         } catch (err) {
             console.error('Registration failed:', err);
         }

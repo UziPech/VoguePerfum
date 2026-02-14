@@ -51,8 +51,15 @@ const loginUser = async (req, res) => {
         });
     } catch (err) {
         console.error('Login Error:', err);
-        if (err.message && (err.message.includes('Invalid login credentials') || err.message.includes('Invalid grant'))) {
-            return res.status(401).json({ error: 'Correo o contraseña incorrectos.' });
+        if (err.message) {
+            if (err.message.includes('Invalid login credentials') || err.message.includes('Invalid grant')) {
+                return res.status(401).json({ error: 'Correo o contraseña incorrectos.' });
+            }
+            if (err.message.includes('Email not confirmed')) {
+                return res.status(401).json({
+                    error: 'Tu correo aún no está confirmado. Por favor revisa tu bandeja de entrada y confirma tu correo electrónico.'
+                });
+            }
         }
         res.status(401).json({ error: 'Error al iniciar sesión. Inténtalo de nuevo.' });
     }

@@ -90,7 +90,26 @@ export const Login: React.FC = () => {
                             {(() => {
                                 if ('status' in error) {
                                     if (error.status === 'FETCH_ERROR') return 'No se pudo conectar con el servidor. Intenta más tarde.';
-                                    if ('data' in error && (error.data as any).error) return (error.data as any).error;
+                                    if ('data' in error && (error.data as any).error) {
+                                        const errorMsg = (error.data as any).error;
+                                        // Check if email not confirmed
+                                        if (errorMsg.includes('Email not confirmed') || errorMsg.includes('no confirmado')) {
+                                            return (
+                                                <div className="space-y-2">
+                                                    <p>Tu correo aún no está verificado.</p>
+                                                    <p className="text-xs">Por favor revisa tu bandeja de entrada y confirma tu correo electrónico.</p>
+                                                    <Link
+                                                        to="/admin/verify-email"
+                                                        state={{ email }}
+                                                        className="text-blue-600 underline text-xs block mt-2"
+                                                    >
+                                                        ¿No recibiste el correo? Haz clic aquí
+                                                    </Link>
+                                                </div>
+                                            );
+                                        }
+                                        return errorMsg;
+                                    }
                                 }
                                 return 'Error al iniciar sesión. Verifica tus datos.';
                             })()}
