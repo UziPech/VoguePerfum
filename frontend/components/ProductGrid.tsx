@@ -4,9 +4,9 @@ import { ProductCard } from './ProductCard';
 
 interface ProductGridProps {
     products: Product[];
-    wishlist: Set<number>;
+    wishlist: Set<number | string>;
     onAddToCart: (product: Product) => void;
-    onToggleWishlist: (id: number) => void;
+    onToggleWishlist: (id: number | string) => void;
     selectedCategory: Category;
     onClearSearch?: () => void;
 }

@@ -29,7 +29,7 @@ export const ProductTicker: React.FC<ProductTickerProps> = ({ products, onAddToC
                         className="flex-shrink-0 mx-3 group cursor-pointer"
                         onClick={() => onAddToCart(product)}
                     >
-                        <div className="w-24 h-32 md:w-28 md:h-36 overflow-hidden bg-gray-100 border border-gray-100 mb-2 relative">
+                        <div className="w-40 h-56 md:w-48 md:h-64 overflow-hidden bg-gray-100 border border-gray-100 mb-2 relative">
                             <img
                                 src={product.image_url || product.image}
                                 alt={product.name}

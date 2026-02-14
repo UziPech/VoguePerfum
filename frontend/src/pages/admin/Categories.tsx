@@ -23,6 +23,7 @@ export const Categories: React.FC = () => {
 
     const [isModalOpen, setIsModalOpen] = React.useState(false);
     const [newCategoryName, setNewCategoryName] = React.useState('');
+    const [justification, setJustification] = React.useState('');
     const [editingId, setEditingId] = React.useState<string | null>(null);
 
     const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
@@ -33,12 +34,17 @@ export const Categories: React.FC = () => {
         e.preventDefault();
         try {
             if (editingId) {
-                await updateCategory({ id: editingId, name: newCategoryName }).unwrap();
+                if (!justification.trim()) {
+                    alert('La justificación es obligatoria para editar.');
+                    return;
+                }
+                await updateCategory({ id: editingId, name: newCategoryName, justification }).unwrap();
             } else {
                 await createCategory({ name: newCategoryName }).unwrap();
             }
             setIsModalOpen(false);
             setNewCategoryName('');
+            setJustification('');
             setEditingId(null);
         } catch (error) {
             console.error('Failed to save category:', error);
@@ -48,6 +54,7 @@ export const Categories: React.FC = () => {
 
     const handleEdit = (category: any) => {
         setNewCategoryName(category.name);
+        setJustification('');
         setEditingId(category.id);
         setIsModalOpen(true);
     };
@@ -66,6 +73,7 @@ export const Categories: React.FC = () => {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setNewCategoryName('');
+        setJustification('');
         setEditingId(null);
     };
 
@@ -79,6 +87,7 @@ export const Categories: React.FC = () => {
                         onClick={() => {
                             setEditingId(null);
                             setNewCategoryName('');
+                            setJustification('');
                             setIsModalOpen(true);
                         }}
                         className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
@@ -117,6 +126,20 @@ export const Categories: React.FC = () => {
                                     onChange={(e) => setNewCategoryName(e.target.value)}
                                 />
                             </div>
+                            {editingId && (
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Justificación del Cambio <span className="text-red-500">*</span>
+                                    </label>
+                                    <textarea
+                                        required
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black h-20 bg-yellow-50"
+                                        placeholder="¿Por qué estás editando esto?"
+                                        value={justification}
+                                        onChange={(e) => setJustification(e.target.value)}
+                                    />
+                                </div>
+                            )}
                             <div className="flex justify-end gap-3">
                                 <button
                                     type="button"

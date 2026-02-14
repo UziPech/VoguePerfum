@@ -15,6 +15,8 @@ const StatCard = ({ title, value, icon: Icon, color }: any) => (
     </div>
 );
 
+import { ActivityLogTable } from '../../components/admin/ActivityLogTable';
+
 export const Dashboard: React.FC = () => {
     const { data: stats, isLoading } = useGetDashboardStatsQuery();
 
@@ -36,7 +38,8 @@ export const Dashboard: React.FC = () => {
                 <p className="text-gray-500 mt-2 font-serif italic">Bienvenido al panel de administración de Vogue Perfum.</p>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Stats Grid - Fixed responsiveness */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                 <StatCard
                     title="Total Productos"
                     value={totalProducts}
@@ -63,19 +66,12 @@ export const Dashboard: React.FC = () => {
                 />
             </div>
 
-            {/* Sales Section (Placeholder for now) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm">
-                    <h2 className="text-2xl font-serif font-bold mb-6 text-gray-900">Ventas del Mes</h2>
-                    <div className="flex items-end gap-2">
-                        <span className="text-5xl font-serif font-bold text-gray-900">${totalSales.toLocaleString()}</span>
-                        <span className="text-gray-400 mb-2 italic">MXN</span>
-                    </div>
-                </div>
+            <div className="grid grid-cols-1 gap-8">
 
-                <div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm">
-                    <h2 className="text-2xl font-serif font-bold mb-4 text-gray-900">Actividad Reciente</h2>
-                    <p className="text-gray-400 italic">No hay actividad reciente para mostrar.</p>
+
+                {/* Activity Log Section */}
+                <div className="lg:col-span-2">
+                    <ActivityLogTable />
                 </div>
             </div>
         </div>

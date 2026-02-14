@@ -1,12 +1,13 @@
 import React from 'react';
 import { Heart, ShoppingCart, Star } from 'lucide-react';
 import { Product } from '../types';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
     product: Product;
     isInWishlist: boolean;
     onAddToCart: (product: Product) => void;
-    onToggleWishlist: (id: number) => void;
+    onToggleWishlist: (id: number | string) => void;
     className?: string;
 }
 
@@ -17,8 +18,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     onToggleWishlist,
     className = ""
 }) => {
+    const navigate = useNavigate();
+
     return (
-        <div className={`group flex flex-col relative cursor-pointer ${className}`}>
+        <div
+            onClick={() => navigate(`/product/${product.id}`)}
+            className={`group flex flex-col relative cursor-pointer ${className}`}
+        >
             {/* Image Container */}
             <div className="relative aspect-square w-full bg-gray-100 mb-3 overflow-hidden rounded-lg">
                 <img
@@ -67,15 +73,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
             {/* Info */}
             <div className="flex flex-col flex-grow px-1">
+                {/* Star Rating (Optional - specific query needed for average) */}
+                {/* For now, hiding fake stars or showing empty */}
                 {/* Star Rating */}
-                <div className="flex gap-0.5 mb-1.5">
+                <div className="flex gap-0.5 mb-1.5 opacity-80">
                     {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-3 h-3 text-black fill-current" />
+                        <Star
+                            key={i}
+                            className={`w-3 h-3 ${i < Math.round(product.stats?.average_rating || 0) ? 'text-black fill-black' : 'text-gray-300'}`}
+                        />
                     ))}
-                    <span className="text-[10px] text-gray-400 ml-1">(5.0)</span>
+                    <span className="text-[10px] text-gray-500 ml-1">({product.stats?.total_reviews || 0})</span>
                 </div>
 
-                <h3 className="text-[10px] md:text-xs text-gray-500 uppercase tracking-[0.2em] mb-1">{product.brand}</h3>
+                <h3 className="text-[10px] md:text-xs text-gray-500 uppercase tracking-[0.2em] mb-1">{product.brands?.name || product.brand}</h3>
                 <h2 className="text-sm font-medium text-gray-900 leading-tight mb-2 truncate font-playfair">{product.name}</h2>
 
                 <div className="mt-auto">

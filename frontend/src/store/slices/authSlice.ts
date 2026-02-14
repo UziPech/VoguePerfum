@@ -5,6 +5,7 @@ export interface User {
     email: string;
     role: 'admin' | 'customer';
     name?: string;
+    full_name?: string;
     avatar_url?: string;
 }
 
@@ -37,6 +38,7 @@ const authSlice = createSlice({
             state.isAuthenticated = true;
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
+            console.log('Auth State Updated:', { user, token });
         },
         logout: (state) => {
             state.user = null;

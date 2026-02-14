@@ -1,4 +1,5 @@
 const supabase = require('../../../config/supabase');
+const logActivity = require('../../../utils/activityLogger');
 
 const generateSlug = (name) => {
     return name
@@ -47,6 +48,18 @@ const updateCategory = async (req, res) => {
 
         if (error) throw error;
         if (!data) return res.status(404).json({ error: 'Category not found' });
+
+        // Log Activity
+        await logActivity({
+            user_id: req.user.id,
+            user_name: req.user.user_metadata?.name || req.user.email,
+            action: 'UPDATE',
+            entity: 'CATEGORIA',
+            entity_id: data.id,
+            entity_name: data.name,
+            justification: req.body.justification || 'Sin justificación', // Temporarily optional until frontend sends it
+            details: updates
+        });
 
         res.status(200).json(data);
     } catch (err) {

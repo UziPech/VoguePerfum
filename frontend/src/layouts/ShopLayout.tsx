@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useScroll } from '../../hooks/useScroll';
 import { useShop } from '../../hooks/useShop';
 import { useGetCategoriesQuery } from '../store/api/catalogApi';
+import { useAppSelector } from '../store/hooks';
 
 // Components
 import { Navbar } from '../../components/Navbar';
@@ -20,6 +21,8 @@ export const ShopLayout = () => {
     // Logic Extract
     const scrolled = useScroll();
     const { data: categoriesData } = useGetCategoriesQuery(undefined);
+    const { user } = useAppSelector((state) => state.auth);
+    console.log('ShopLayout User:', user);
 
     const dynamicCategories = useMemo(() => {
         const dbCategories = categoriesData || [];
@@ -47,6 +50,7 @@ export const ShopLayout = () => {
                 onOpenCart={() => setIsCartOpen(true)}
                 onOpenWishlist={() => setIsWishlistOpen(true)}
                 onOpenSearch={() => setIsSearchOpen(true)}
+                user={user}
             />
 
             <SearchModal
@@ -111,4 +115,4 @@ export const ShopLayout = () => {
             />
         </div>
     );
-}
+};

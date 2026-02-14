@@ -7,7 +7,7 @@ interface WishlistDrawerProps {
     onClose: () => void;
     wishlistItems: Product[];
     onAddToCart: (product: Product) => void;
-    onRemove: (id: number) => void;
+    onRemove: (id: number | string) => void;
 }
 
 export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
@@ -46,7 +46,7 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
                         wishlistItems.map(item => (
                             <div key={item.id} className="flex gap-4 items-center">
                                 <div className="w-16 h-16 bg-gray-100 flex-shrink-0 rounded-md overflow-hidden">
-                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                    <img src={item.image_url || item.image} alt={item.name} className="w-full h-full object-cover" />
                                 </div>
                                 <div className="flex-1">
                                     <h4 className="font-playfair font-medium text-gray-900">{item.name}</h4>

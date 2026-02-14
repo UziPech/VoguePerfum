@@ -1,4 +1,5 @@
 const supabase = require('../../../config/supabase');
+const logActivity = require('../../../utils/activityLogger');
 
 // Command: CreateProduct
 const createProduct = async (req, res) => {
@@ -26,6 +27,24 @@ const createProduct = async (req, res) => {
             .single();
 
         if (error) throw error;
+        if (error) throw error;
+
+        // Log Activity
+        // Note: req.user should be populated by authMiddleware. 
+        // If user_name is not available directly, we might need to fetch it or store it in token.
+        const user = req.user;
+        const userName = user?.user_metadata?.name || user?.email || 'Unknown';
+
+        await logActivity({
+            user_id: user.id,
+            user_name: userName,
+            action: 'CREATE',
+            entity: 'PRODUCT',
+            entity_id: data.id,
+            entity_name: data.name,
+            details: data
+        });
+
         res.status(201).json(data);
     } catch (err) {
         res.status(400).json({ error: err.message });

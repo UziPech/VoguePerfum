@@ -51,7 +51,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {filteredProducts.slice(0, 4).map(product => (
                                 <div key={product.id} className="flex items-center gap-4 group cursor-pointer" onClick={onClose}>
-                                    <img src={product.image} alt={product.name} className="w-12 h-12 object-cover rounded-md opacity-80 group-hover:opacity-100" />
+                                    <img src={product.image_url || product.image} alt={product.name} className="w-12 h-12 object-cover rounded-md opacity-80 group-hover:opacity-100" />
                                     <div>
                                         <p className="text-white text-sm font-medium">{product.name}</p>
                                         <p className="text-white/50 text-xs">{product.brand}</p>

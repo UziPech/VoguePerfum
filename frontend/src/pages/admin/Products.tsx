@@ -24,7 +24,8 @@ export const Products: React.FC = () => {
         stock: '',
         category_id: '',
         brand_id: '',
-        image_url: ''
+        image_url: '',
+        justification: ''
     });
 
     const handleDelete = async (id: string) => {
@@ -41,13 +42,24 @@ export const Products: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            const cleanStock = formData.stock === '' ? 0 : parseInt(formData.stock);
+
+            if (cleanStock < 0) {
+                alert('El stock no puede ser negativo.');
+                return;
+            }
+
             const productData = {
                 ...formData,
                 price: parseFloat(formData.price),
-                stock: parseInt(formData.stock)
+                stock: cleanStock
             };
 
             if (editingId) {
+                if (!formData.justification.trim()) {
+                    alert('Por favor, ingresa una justificación para el cambio.');
+                    return;
+                }
                 await updateProduct({ id: editingId, ...productData }).unwrap();
             } else {
                 await createProduct(productData).unwrap();
@@ -69,14 +81,15 @@ export const Products: React.FC = () => {
             stock: product.stock.toString(),
             category_id: product.category_id || '',
             brand_id: product.brand_id || '',
-            image_url: product.image_url || ''
+            image_url: product.image_url || '',
+            justification: ''
         });
         setEditingId(product.id);
         setIsModalOpen(true);
     };
 
     const resetForm = () => {
-        setFormData({ name: '', description: '', price: '', stock: '', category_id: '', brand_id: '', image_url: '' });
+        setFormData({ name: '', description: '', price: '', stock: '', category_id: '', brand_id: '', image_url: '', justification: '' });
         setEditingId(null);
     };
 
@@ -224,13 +237,19 @@ export const Products: React.FC = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Stock Inicial</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Stock (Opcional)</label>
                                     <input
                                         type="number"
-                                        required
+                                        min="0"
+                                        onKeyDown={(e) => {
+                                            if (['-', 'e', 'E', '+'].includes(e.key)) {
+                                                e.preventDefault();
+                                            }
+                                        }}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                                         value={formData.stock}
                                         onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                                        placeholder="0"
                                     />
                                 </div>
                                 <div>
@@ -297,6 +316,22 @@ export const Products: React.FC = () => {
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 />
                             </div>
+
+                            {/* Justification Field - Only for Editing */}
+                            {editingId && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Justificación del Cambio <span className="text-red-500">*</span>
+                                    </label>
+                                    <textarea
+                                        required
+                                        placeholder="Explica brevemente por qué estás realizando este cambio..."
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black h-20 bg-yellow-50"
+                                        value={formData.justification}
+                                        onChange={(e) => setFormData({ ...formData, justification: e.target.value })}
+                                    />
+                                </div>
+                            )}
 
                             <div className="flex justify-end gap-3 pt-4">
                                 <button

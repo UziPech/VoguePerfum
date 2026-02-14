@@ -4,12 +4,16 @@ const supabase = require('../config/supabase');
 const authenticateUser = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
+        console.log(`[AuthMiddleware] URL: ${req.url}, Method: ${req.method}`);
+
         if (!authHeader) {
+            console.log('[AuthMiddleware] Missing Authorization header');
             return res.status(401).json({ error: 'Missing Authorization header' });
         }
 
         const token = authHeader.split(' ')[1];
         if (!token) {
+            console.log('[AuthMiddleware] Invalid token format');
             return res.status(401).json({ error: 'Invalid token format' });
         }
 
@@ -17,8 +21,11 @@ const authenticateUser = async (req, res, next) => {
         const { data: { user }, error } = await supabase.auth.getUser(token);
 
         if (error || !user) {
+            console.log('[AuthMiddleware] Invalid or expired token:', error?.message);
             return res.status(401).json({ error: 'Invalid or expired token' });
         }
+
+        console.log(`[AuthMiddleware] User authenticated: ${user.email}`);
 
         // Adjuntar usuario al request
         req.user = user;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 import { LayoutDashboard, Tag, Package, LogOut, Store } from 'lucide-react';
 import { useAppDispatch } from '../../store/hooks';
 import { logout } from '../../store/slices/authSlice';
@@ -67,13 +67,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
                 </nav>
 
                 <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 flex flex-col gap-2">
-                    <NavLink
+                    <Link
                         to="/"
                         className="flex items-center gap-3 px-4 py-3 w-full text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
                     >
                         <Store className="w-5 h-5" />
                         <span className="font-medium">Ver Catálogo</span>
-                    </NavLink>
+                    </Link>
                     <button
                         onClick={handleLogout}
                         className="flex items-center gap-3 px-4 py-3 w-full text-red-600 hover:bg-red-50 rounded-lg transition-colors"
