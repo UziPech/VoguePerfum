@@ -9,7 +9,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({
     origin: [
         'http://localhost:5173',  // Local development
-        'https://vogueperfum-frontend.vercel.app',  // Production
+        'https://vogueperfum-frontend.vercel.app',  // Old Production 
+        'https://vogueperfum.vercel.app', // New Production Domain
+        'https://www.vogueperfum.vercel.app', // New Production Domain (www)
         'https://vogueperfum-frontend-i205laut1-uziels-projects-fa4bbf7c.vercel.app'  // Vercel preview URLs
     ],
     credentials: true
