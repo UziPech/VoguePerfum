@@ -21,6 +21,7 @@ const updateCategory = require('../features/catalog/commands/updateCategory');
 // Brands
 const getBrands = require('../features/brands/queries/getBrands');
 const createBrand = require('../features/brands/commands/createBrand');
+const deleteBrand = require('../features/brands/commands/deleteBrand');
 const getDashboardStats = require('../features/dashboard/queries/getDashboardStats');
 
 // Middleware
@@ -43,6 +44,7 @@ router.delete('/categories/:id', authenticateUser, requireAdmin, deleteCategory)
 
 router.get('/brands', getBrands);
 router.post('/brands', authenticateUser, requireAdmin, createBrand);
+router.delete('/brands/:id', authenticateUser, requireAdmin, deleteBrand);
 
 router.get('/products', getProducts);
 router.get('/products/:id', getProduct);

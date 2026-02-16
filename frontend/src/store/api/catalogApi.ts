@@ -132,6 +132,13 @@ export const catalogApi = createApi({
             }),
             invalidatesTags: ['Categories', 'ActivityLogs'],
         }),
+        deleteBrand: builder.mutation({
+            query: (id) => ({
+                url: `/brands/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Brands', 'ActivityLogs'],
+        }),
         // Reviews
         createReview: builder.mutation({
             query: (reviewData) => ({
@@ -213,6 +220,7 @@ export const {
     useUpdateCategoryMutation,
     useDeleteProductMutation,
     useDeleteCategoryMutation,
+    useDeleteBrandMutation,
     // Commerce Hooks
     useCreateReviewMutation,
     useGetProductReviewsQuery,

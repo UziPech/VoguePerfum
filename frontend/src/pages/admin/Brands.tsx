@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useGetBrandsQuery, useCreateBrandMutation } from '../../store/api/catalogApi';
+import { useGetBrandsQuery, useCreateBrandMutation, useDeleteBrandMutation } from '../../store/api/catalogApi';
 import { Loader2, Plus, Search } from 'lucide-react';
 import { DataTable } from '../../components/admin/DataTable';
 
 export const Brands: React.FC = () => {
     const { data: brands, isLoading } = useGetBrandsQuery();
     const [createBrand, { isLoading: isCreating }] = useCreateBrandMutation();
+    const [deleteBrand] = useDeleteBrandMutation();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newBrandName, setNewBrandName] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -20,6 +21,17 @@ export const Brands: React.FC = () => {
         } catch (error) {
             console.error('Failed to create brand:', error);
             alert('Error creating brand');
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (window.confirm('¿Estás seguro de eliminar esta marca?')) {
+            try {
+                await deleteBrand(id).unwrap();
+            } catch (error) {
+                console.error('Failed to delete brand:', error);
+                alert('Error al eliminar marca');
+            }
         }
     };
 
@@ -78,6 +90,7 @@ export const Brands: React.FC = () => {
                     <DataTable
                         data={filteredBrands}
                         columns={columns}
+                        onDelete={(item) => handleDelete(item.id)}
                     />
                 </div>
             </div>
