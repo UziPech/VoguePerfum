@@ -14,9 +14,28 @@ const loginUser = async (req, res) => {
 
         if (error) throw error;
 
-        // Fetch user role from metadata or profiles table if needed.
-        // For now, assuming role is in user_metadata or default to 'customer'.
-        const role = data.user.user_metadata?.role || 'customer';
+        // Fetch user role from metadata or profiles table.
+        // Priority: Profiles -> Metadata -> Default 'customer'
+        let role = data.user.user_metadata?.role;
+
+        // Intentar SIEMPRE obtener el rol de la tabla profiles, ya que es donde el usuario lo edita manualmente.
+        try {
+            const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', data.user.id)
+                .single();
+
+            if (profileData && !profileError && profileData.role) {
+                // Si existe rol en profiles, USARLO (sobrescribe metadata)
+                role = profileData.role;
+                console.log('Role fetched from profiles:', role);
+            }
+        } catch (roleCatchError) {
+            console.warn('Error fetching role from profiles:', roleCatchError);
+        }
+
+        role = role || 'customer';
 
         // Intentar obtener el nombre de metadata, o fallback a tabla profiles
         let name = data.user.user_metadata?.name || data.user.user_metadata?.full_name || '';

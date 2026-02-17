@@ -10,6 +10,10 @@ export const ProductTicker: React.FC<ProductTickerProps> = ({ products, onAddToC
     // Duplicate products to ensure seamless scrolling
     const tickerProducts = [...products, ...products, ...products];
 
+    // Calculate duration based on number of items to ensure consistent speed
+    // ~2 seconds per item in the ticker seems readable
+    const duration = Math.max(40, tickerProducts.length * 2);
+
     return (
         <div className="bg-white py-8 overflow-hidden border-b border-gray-100">
             <style>{`
@@ -18,7 +22,7 @@ export const ProductTicker: React.FC<ProductTickerProps> = ({ products, onAddToC
           100% { transform: translateX(-50%); }
         }
         .animate-marquee-scroll {
-          animation: marquee-scroll 40s linear infinite;
+          animation: marquee-scroll ${duration}s linear infinite;
         }
       `}</style>
 

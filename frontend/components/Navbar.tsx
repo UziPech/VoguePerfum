@@ -62,7 +62,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                         {/* Right Side Actions */}
                         <div className="flex items-center space-x-4 md:space-x-6">
-                            <button onClick={onOpenSearch} className="hover:opacity-70 transition-opacity">
+                            <button onClick={onOpenSearch} className="hover:opacity-70 transition-opacity relative z-[60]">
                                 <Search className="w-5 h-5 md:w-6 md:h-6" />
                             </button>
 
