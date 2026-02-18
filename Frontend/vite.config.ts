@@ -8,6 +8,13 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3001,
       host: '0.0.0.0',
+      proxy: {
+        '/api': {
+          target: 'https://vogueperfum-backend.vercel.app',
+          changeOrigin: true,
+          secure: false,
+        }
+      },
     },
     plugins: [react()],
     define: {

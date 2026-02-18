@@ -5,9 +5,9 @@ import { ProductCard } from './ProductCard';
 
 interface NewArrivalsProps {
     products: Product[];
-    wishlist: Set<number>;
+    wishlist: Set<number | string>;
     onAddToCart: (product: Product) => void;
-    onToggleWishlist: (id: number) => void;
+    onToggleWishlist: (id: number | string) => void;
 }
 
 export const NewArrivals: React.FC<NewArrivalsProps> = ({

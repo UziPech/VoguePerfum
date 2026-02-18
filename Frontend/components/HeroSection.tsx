@@ -10,8 +10,8 @@ export const HeroSection = () => {
                 playsInline
                 className="absolute inset-0 w-full h-full object-cover opacity-80"
             >
-                {/* Abstract elegant liquid/smoke video placeholder */}
-                <source src="https://videos.pexels.com/video-files/3205917/3205917-uhd_2560_1440_25fps.mp4" type="video/mp4" />
+                {/* Video de fondo: Vogueperfum.mp4 (en raiz de public) */}
+                <source src="/Vogueperfum.mp4" type="video/mp4" />
             </video>
 
             {/* Overlay gradient */}

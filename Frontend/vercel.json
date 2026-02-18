@@ -1,6 +1,10 @@
 {
     "rewrites": [
         {
+            "source": "/api/:match*",
+            "destination": "https://vogueperfum-backend.vercel.app/:match*"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }

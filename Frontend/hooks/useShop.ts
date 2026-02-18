@@ -1,33 +1,97 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Product, CartItem, Category } from '../types';
-import { useGetProductsQuery, useGetCartQuery, useGetWishlistQuery, useAddToCartMutation, useUpdateCartItemMutation, useRemoveFromCartMutation, useAddToWishlistMutation, useRemoveFromWishlistMutation } from '../src/store/api/catalogApi';
+import { useGetProductsQuery, useGetCartQuery, useGetWishlistQuery, useAddToCartMutation, useUpdateCartItemMutation, useRemoveFromCartMutation, useAddToWishlistMutation, useRemoveFromWishlistMutation, useGetCategoriesQuery } from '../src/store/api/catalogApi';
 import { useAppSelector } from '../src/store/hooks';
 
 export function useShop() {
     const [searchParams, setSearchParams] = useSearchParams();
-    const categoryFromUrl = searchParams.get('category');
+    const categorySlugFromUrl = searchParams.get('category');
     const { user } = useAppSelector((state) => state.auth);
 
+    // Fetch categories to map slug -> name for UI
+    const { data: categoriesData } = useGetCategoriesQuery();
+
     // Initialize from URL or default to 'Todo'
-    const [selectedCategory, setSelectedCategoryState] = useState<Category>(categoryFromUrl || 'Todo');
+    const [selectedCategory, setSelectedCategoryState] = useState<string>(categorySlugFromUrl || 'Todo');
 
     // Sync state when URL changes
     useEffect(() => {
-        if (categoryFromUrl) {
-            setSelectedCategoryState(categoryFromUrl);
+        if (categorySlugFromUrl) {
+            setSelectedCategoryState(categorySlugFromUrl);
         } else {
             setSelectedCategoryState('Todo');
         }
-    }, [categoryFromUrl]);
+    }, [categorySlugFromUrl]);
 
-    const setSelectedCategory = (category: Category) => {
-        setSelectedCategoryState(category);
-        if (category === 'Todo') {
+    const setSelectedCategory = (categorySlug: string) => {
+        setSelectedCategoryState(categorySlug);
+        if (categorySlug === 'Todo') {
             searchParams.delete('category');
             setSearchParams(searchParams);
         } else {
-            setSearchParams({ ...Object.fromEntries(searchParams), category });
+            setSearchParams({ ...Object.fromEntries(searchParams), category: categorySlug });
+        }
+    };
+
+    // Pagination State
+    const [page, setPage] = useState(1);
+    const [allProducts, setAllProducts] = useState<Product[]>([]);
+    const [hasMore, setHasMore] = useState(true);
+
+    // Reset pagination when category changes
+    useEffect(() => {
+        setPage(1);
+        setAllProducts([]);
+        setHasMore(true);
+    }, [selectedCategory]);
+
+    // Derived Name for UI
+    const selectedCategoryName = useMemo(() => {
+        if (selectedCategory === 'Todo') return 'Todo';
+
+        const categories = Array.isArray(categoriesData) ? categoriesData : (categoriesData?.data || []);
+
+        // Try to find matching category by slug or name (fallback)
+        const found = categories.find((c: any) => c.slug === selectedCategory || c.name === selectedCategory);
+        return found ? found.name : selectedCategory;
+    }, [selectedCategory, categoriesData]);
+
+    const apiCategorySlug = selectedCategory === 'Todo' ? undefined : selectedCategory;
+
+    // Fetch Products (Paginated)
+    const { data, isLoading, isFetching } = useGetProductsQuery({
+        page,
+        limit: 12,
+        category_slug: apiCategorySlug
+    });
+
+    // Accumulate Products
+    useEffect(() => {
+        if (data?.data) {
+            if (page === 1) {
+                setAllProducts(data.data);
+            } else {
+                setAllProducts(prev => {
+                    // Prevent duplicates if strict mode causes double render
+                    const newIds = new Set(data.data.map((p: any) => p.id));
+                    const filteredPrev = prev.filter(p => !newIds.has(p.id));
+                    return [...filteredPrev, ...data.data];
+                });
+            }
+
+            // Determine if there are more products to load
+            if (data.data.length < 12) {
+                setHasMore(false);
+            } else {
+                setHasMore(true);
+            }
+        }
+    }, [data, page]);
+
+    const loadMore = () => {
+        if (!isFetching && hasMore) {
+            setPage(prev => prev + 1);
         }
     };
 
@@ -78,35 +142,39 @@ export function useShop() {
     }, [user, serverWishlistData, localWishlist]);
 
 
-    // Fetch Products
-    const { data, isLoading } = useGetProductsQuery({ limit: 100 });
-    const products: Product[] = data?.data || [];
-
     // UI State
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isWishlistOpen, setIsWishlistOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Filtering
-    const filteredProducts = useMemo(() => {
-        if (isLoading) return [];
-        return products.filter(product => {
-            const categoryName = product.categories?.name || product.category;
-            const matchesCategory = selectedCategory === 'Todo' || categoryName === selectedCategory;
+    // Use allProducts for display
+    const products: Product[] = allProducts;
 
+    // Filtering (Search only - Category is now server-side)
+    const filteredProducts = useMemo(() => {
+        // We filter the loaded products by search query
+        return products.filter(product => {
             const brandName = product.brands?.name || product.brand || '';
             const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 brandName.toLowerCase().includes(searchQuery.toLowerCase());
-            return matchesCategory && matchesSearch;
+            return matchesSearch;
         });
-    }, [selectedCategory, searchQuery, products, isLoading]);
+    }, [searchQuery, products]);
 
     const wishlistProducts = useMemo(() => {
         return products.filter(product => wishlist.has(product.id));
     }, [wishlist, products]);
 
-    const newArrivals = useMemo(() => products.slice(0, 5), [products]);
+    // Fetches for New Arrivals (Global, independent of filters)
+    const { data: newArrivalsData } = useGetProductsQuery({ limit: 20, page: 1 });
+
+    const newArrivals = useMemo(() => {
+        if (!newArrivalsData?.data) return [];
+        // Create a copy and shuffle
+        const shuffled = [...newArrivalsData.data].sort(() => 0.5 - Math.random());
+        return shuffled;
+    }, [newArrivalsData]);
 
     // Actions
     const addToCart = async (product: Product) => {
@@ -187,6 +255,7 @@ export function useShop() {
 
     return {
         selectedCategory,
+        selectedCategoryName, // Export name for UI
         setSelectedCategory,
         cart,
         wishlist,
@@ -208,6 +277,9 @@ export function useShop() {
         cartCount,
         toggleWishlist,
         isLoading,
+        isLoadingMore: isFetching && page > 1,
+        loadMore,
+        hasMore,
         allProducts: products
     };
 }

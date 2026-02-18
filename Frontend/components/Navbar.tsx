@@ -11,6 +11,7 @@ interface NavbarProps {
     onOpenCart: () => void;
     onOpenWishlist: () => void;
     onOpenSearch: () => void;
+    onLogoClick?: () => void;
     user?: UserType | null;
 }
 
@@ -21,6 +22,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     onOpenCart,
     onOpenWishlist,
     onOpenSearch,
+    onLogoClick,
     user
 }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -56,9 +58,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                         </div>
 
                         {/* Logo - Centered */}
-                        <div className="absolute left-1/2 transform -translate-x-1/2 text-xl md:text-2xl font-bold tracking-[0.2em] text-center uppercase">
+                        <button
+                            onClick={onLogoClick}
+                            className="absolute left-1/2 transform -translate-x-1/2 text-xl md:text-2xl font-bold tracking-[0.2em] text-center uppercase cursor-pointer hover:opacity-80 transition-opacity"
+                        >
                             Vogue Perfum<sup className="text-[10px] md:text-xs">®</sup>
-                        </div>
+                        </button>
 
                         {/* Right Side Actions */}
                         <div className="flex items-center space-x-4 md:space-x-6">
