@@ -74,7 +74,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                                 {categories?.map((cat: any) => (
                                     <Link
                                         key={cat.id}
-                                        to={`/?category=${encodeURIComponent(cat.name)}#catalog`}
+                                        to={`/?category=${encodeURIComponent(cat.slug)}#catalog`}
                                         onClick={onClose}
                                         className="block text-gray-600 hover:text-black transition-colors text-base"
                                     >

@@ -2,7 +2,7 @@
     "rewrites": [
         {
             "source": "/api/:match*",
-            "destination": "https://vogueperfum-backend.vercel.app/:match*"
+            "destination": "https://vogueperfum-backend.vercel.app/api/:match*"
         },
         {
             "source": "/(.*)",
