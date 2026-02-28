@@ -8,7 +8,8 @@ export const MOCK_PRODUCTS: Product[] = [
     price: 185.00,
     category: "Hombre",
     image: "https://picsum.photos/500/500?random=1",
-    isNew: true
+    isNew: true,
+    stock: 10
   },
   {
     id: 2,
@@ -16,7 +17,8 @@ export const MOCK_PRODUCTS: Product[] = [
     brand: "YVES SAINT LAURENT",
     price: 140.00,
     category: "Mujer",
-    image: "https://picsum.photos/500/500?random=2"
+    image: "https://picsum.photos/500/500?random=2",
+    stock: 10
   },
   {
     id: 3,
@@ -24,7 +26,8 @@ export const MOCK_PRODUCTS: Product[] = [
     brand: "LE LABO",
     price: 230.00,
     category: "Unisex",
-    image: "https://picsum.photos/500/500?random=3"
+    image: "https://picsum.photos/500/500?random=3",
+    stock: 10
   },
   {
     id: 4,
@@ -32,7 +35,8 @@ export const MOCK_PRODUCTS: Product[] = [
     brand: "DIOR",
     price: 165.00,
     category: "Hombre",
-    image: "https://picsum.photos/500/500?random=4"
+    image: "https://picsum.photos/500/500?random=4",
+    stock: 10
   },
   {
     id: 5,
@@ -41,7 +45,8 @@ export const MOCK_PRODUCTS: Product[] = [
     price: 295.00,
     category: "Sets",
     image: "https://picsum.photos/500/500?random=5",
-    isNew: true
+    isNew: true,
+    stock: 10
   },
   {
     id: 6,
@@ -49,7 +54,8 @@ export const MOCK_PRODUCTS: Product[] = [
     brand: "TOM FORD",
     price: 155.00,
     category: "Mujer",
-    image: "https://picsum.photos/500/500?random=6"
+    image: "https://picsum.photos/500/500?random=6",
+    stock: 10
   },
   {
     id: 7,
@@ -57,7 +63,8 @@ export const MOCK_PRODUCTS: Product[] = [
     brand: "CREED",
     price: 365.00,
     category: "Hombre",
-    image: "https://picsum.photos/500/500?random=7"
+    image: "https://picsum.photos/500/500?random=7",
+    stock: 10
   },
   {
     id: 8,
@@ -65,7 +72,8 @@ export const MOCK_PRODUCTS: Product[] = [
     brand: "MAISON FRANCIS KURKDJIAN",
     price: 325.00,
     category: "Unisex",
-    image: "https://picsum.photos/500/500?random=8"
+    image: "https://picsum.photos/500/500?random=8",
+    stock: 10
   }
 ];
 
