@@ -27,6 +27,20 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
         navigate('/');
     };
 
+    const handleCategoryClick = () => {
+        onClose();
+        setTimeout(() => {
+            const catalogElement = document.getElementById('catalog');
+            if (catalogElement) {
+                // Le sumamos un offset positivo para que la pantalla baje AÚN MÁS.
+                // Esto ayuda a que el inicio del catálogo quede perfectamente visible.
+                const yOffset = 20;
+                const y = catalogElement.getBoundingClientRect().top + window.scrollY + yOffset;
+                window.scrollTo({ top: y, behavior: 'smooth' });
+            }
+        }, 100); // Slight delay to let Router update the URL and re-render if needed
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -61,7 +75,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
 
                         <Link
                             to="/#catalog"
-                            onClick={onClose}
+                            onClick={handleCategoryClick}
                             className="flex items-center gap-3 text-gray-800 hover:text-black transition-colors"
                         >
                             <ShoppingBag className="w-5 h-5" />
@@ -74,8 +88,8 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                                 {categories?.map((cat: any) => (
                                     <Link
                                         key={cat.id}
-                                        to={`/?category=${encodeURIComponent(cat.slug)}#catalog`}
-                                        onClick={onClose}
+                                        to={`/?category=${encodeURIComponent(cat.slug)}`}
+                                        onClick={handleCategoryClick}
                                         className="block text-gray-600 hover:text-black transition-colors text-base"
                                     >
                                         {cat.name}
