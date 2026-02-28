@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, Heart, Check, Star } from 'lucide-react';
 import { useGetProductQuery, useGetProductReviewsQuery, useCreateReviewMutation, useGetProductsQuery } from '../store/api/catalogApi';
@@ -20,8 +20,23 @@ export const ProductDetails = () => {
     const { data: product, isLoading: productLoading } = useGetProductQuery(id);
     const { data: reviewsData, isLoading: reviewsLoading } = useGetProductReviewsQuery(id);
     const [createReview, { isLoading: isReviewing }] = useCreateReviewMutation();
-    const { data: relatedData } = useGetProductsQuery({ limit: 4 });
+    const categorySlug = product?.categories?.slug;
+    const { data: relatedData } = useGetProductsQuery(
+        { limit: 12, ...(categorySlug ? { category_slug: categorySlug } : {}) },
+        { skip: !product }
+    );
     const relatedProducts = relatedData?.data || [];
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [id]);
+
+    const randomizedRelatedProducts = useMemo(() => {
+        return [...relatedProducts]
+            .filter((p: any) => Number(p.id) !== Number(product?.id))
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 8);
+    }, [relatedProducts, product?.id]);
 
     // Shop Logic (Cart, Wishlist, Navbar state)
     const {
@@ -242,8 +257,8 @@ export const ProductDetails = () => {
                 </div>
                 <div className="mt-24 pt-10 border-t border-gray-100">
                     <h2 className="text-2xl font-serif font-medium text-gray-900 mb-8 text-center uppercase tracking-widest">También te puede interesar</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        {relatedProducts.filter((p: any) => Number(p.id) !== Number(product.id)).slice(0, 4).map((relatedProduct: any) => (
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                        {randomizedRelatedProducts.map((relatedProduct: any) => (
                             <ProductCard
                                 key={relatedProduct.id}
                                 product={relatedProduct}
