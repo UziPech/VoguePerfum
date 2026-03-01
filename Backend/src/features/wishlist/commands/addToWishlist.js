@@ -17,8 +17,8 @@ const addToWishlist = async (req, res) => {
             .single();
 
         if (error) {
-            // Check for duplicate entry
-            if (error.code === '23505') {
+            // Check for duplicate entry (PostgreSQL 23505 or PostgREST 409 conflict)
+            if (error.code === '23505' || error.message?.includes('duplicate') || error.message?.includes('unique')) {
                 return res.status(200).json({ message: 'Already in wishlist' });
             }
             throw error;

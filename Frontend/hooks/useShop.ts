@@ -99,10 +99,14 @@ export function useShop() {
 
     // Local State (for guests)
     const [localCart, setLocalCart] = useState<CartItem[]>(() => JSON.parse(localStorage.getItem('cart') || '[]'));
-    const [localWishlist, setLocalWishlist] = useState<Set<string | number>>(() => {
-        const saved = localStorage.getItem('wishlist');
-        return new Set(saved ? JSON.parse(saved) : []);
+    const [localWishlistItems, setLocalWishlistItems] = useState<Product[]>(() => {
+        const saved = localStorage.getItem('wishlist_products');
+        if (saved) return JSON.parse(saved);
+        // Clean up old format (was only IDs, can't recover product data)
+        localStorage.removeItem('wishlist');
+        return [];
     });
+    const localWishlist = useMemo(() => new Set(localWishlistItems.map(p => p.id)), [localWishlistItems]);
 
     // API Hooks (for auth users)
     const { data: serverCartData } = useGetCartQuery(undefined, { skip: !user });
@@ -118,9 +122,9 @@ export function useShop() {
     useEffect(() => {
         if (!user) {
             localStorage.setItem('cart', JSON.stringify(localCart));
-            localStorage.setItem('wishlist', JSON.stringify(Array.from(localWishlist)));
+            localStorage.setItem('wishlist_products', JSON.stringify(localWishlistItems));
         }
-    }, [localCart, localWishlist, user]);
+    }, [localCart, localWishlistItems, user]);
 
     // Derived State (Unified)
     const cart: CartItem[] = useMemo(() => {
@@ -163,8 +167,19 @@ export function useShop() {
     }, [searchQuery, products]);
 
     const wishlistProducts = useMemo(() => {
-        return products.filter(product => wishlist.has(product.id));
-    }, [wishlist, products]);
+        if (user && serverWishlistData) {
+            // Auth users: use the full product data from the server response
+            // Each item is { id, product_id, created_at, product: { ...full product... } }
+            return serverWishlistData
+                .filter((w: any) => w.product)
+                .map((w: any) => ({
+                    ...w.product,
+                    image: w.product.image_url || w.product.image,
+                }));
+        }
+        // Guests: use the full product objects stored in localStorage
+        return localWishlistItems;
+    }, [user, serverWishlistData, localWishlistItems]);
 
     // Fetches for New Arrivals (Global, independent of filters)
     const { data: newArrivalsData } = useGetProductsQuery({ limit: 20, page: 1 });
@@ -237,15 +252,23 @@ export function useShop() {
                 await addToWishlistMutation(id);
             }
         } else {
-            setLocalWishlist(prev => {
-                const newWishlist = new Set(prev);
-                if (newWishlist.has(id)) {
-                    newWishlist.delete(id);
+            setLocalWishlistItems(prev => {
+                let updated: Product[];
+                if (prev.some(p => p.id === id)) {
+                    // Remove
+                    updated = prev.filter(p => p.id !== id);
                 } else {
-                    newWishlist.add(id);
+                    // Add — find the full product from any loaded source
+                    const product = products.find(p => p.id === id)
+                        || (newArrivalsData?.data || []).find((p: Product) => p.id === id);
+                    if (product) {
+                        updated = [...prev, product];
+                    } else {
+                        return prev;
+                    }
                 }
-                localStorage.setItem('wishlist', JSON.stringify(Array.from(newWishlist)));
-                return newWishlist;
+                localStorage.setItem('wishlist_products', JSON.stringify(updated));
+                return updated;
             });
         }
     };

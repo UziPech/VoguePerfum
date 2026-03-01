@@ -163,14 +163,41 @@ export const catalogApi = createApi({
                 method: 'POST',
                 body: { product_id },
             }),
-            invalidatesTags: ['Wishlist'],
+            async onQueryStarted(product_id, { dispatch, queryFulfilled }) {
+                // Optimistic update: add placeholder to wishlist cache
+                const patchResult = dispatch(
+                    catalogApi.util.updateQueryData('getWishlist', undefined, (draft: any[]) => {
+                        draft.push({ product_id, id: 'temp-' + Date.now(), product: null });
+                    })
+                );
+                try {
+                    await queryFulfilled;
+                    // Refetch to get the full product data from server
+                    dispatch(catalogApi.util.invalidateTags(['Wishlist']));
+                } catch {
+                    patchResult.undo();
+                }
+            },
         }),
         removeFromWishlist: builder.mutation({
             query: (productId) => ({
                 url: `/wishlist/${productId}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['Wishlist'],
+            async onQueryStarted(productId, { dispatch, queryFulfilled }) {
+                // Optimistic update: remove from wishlist cache immediately
+                const patchResult = dispatch(
+                    catalogApi.util.updateQueryData('getWishlist', undefined, (draft: any[]) => {
+                        const index = draft.findIndex((w: any) => w.product_id === productId);
+                        if (index !== -1) draft.splice(index, 1);
+                    })
+                );
+                try {
+                    await queryFulfilled;
+                } catch {
+                    patchResult.undo();
+                }
+            },
         }),
         // Cart
         getCart: builder.query<any, void>({
@@ -183,7 +210,15 @@ export const catalogApi = createApi({
                 method: 'POST',
                 body: { product_id, quantity },
             }),
-            invalidatesTags: ['Cart'],
+            async onQueryStarted({ product_id, quantity }, { dispatch, queryFulfilled }) {
+                try {
+                    await queryFulfilled;
+                    // Refetch to get the full product data from server
+                    dispatch(catalogApi.util.invalidateTags(['Cart']));
+                } catch {
+                    // Error handled by RTK Query
+                }
+            },
         }),
         updateCartItem: builder.mutation({
             query: ({ productId, quantity }) => ({
@@ -191,14 +226,40 @@ export const catalogApi = createApi({
                 method: 'PUT',
                 body: { quantity },
             }),
-            invalidatesTags: ['Cart'],
+            async onQueryStarted({ productId, quantity }, { dispatch, queryFulfilled }) {
+                // Optimistic update: update quantity in cache immediately
+                const patchResult = dispatch(
+                    catalogApi.util.updateQueryData('getCart', undefined, (draft: any[]) => {
+                        const item = draft.find((c: any) => c.product_id === productId || c.product?.id === productId);
+                        if (item) item.quantity = quantity;
+                    })
+                );
+                try {
+                    await queryFulfilled;
+                } catch {
+                    patchResult.undo();
+                }
+            },
         }),
         removeFromCart: builder.mutation({
             query: (productId) => ({
                 url: `/cart/${productId}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['Cart'],
+            async onQueryStarted(productId, { dispatch, queryFulfilled }) {
+                // Optimistic update: remove from cart cache immediately
+                const patchResult = dispatch(
+                    catalogApi.util.updateQueryData('getCart', undefined, (draft: any[]) => {
+                        const index = draft.findIndex((c: any) => c.product_id === productId || c.product?.id === productId);
+                        if (index !== -1) draft.splice(index, 1);
+                    })
+                );
+                try {
+                    await queryFulfilled;
+                } catch {
+                    patchResult.undo();
+                }
+            },
         }),
     }),
 });

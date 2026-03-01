@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Heart, Plus, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Product } from '../types';
 
 interface WishlistDrawerProps {
@@ -17,6 +18,13 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
     onAddToCart,
     onRemove
 }) => {
+    const navigate = useNavigate();
+
+    const handleProductClick = (productId: number | string) => {
+        onClose();
+        navigate(`/product/${productId}`);
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -45,12 +53,20 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
                     ) : (
                         wishlistItems.map(item => (
                             <div key={item.id} className="flex gap-4 items-center">
-                                <div className="w-16 h-16 bg-gray-100 flex-shrink-0 rounded-md overflow-hidden">
+                                <div
+                                    className="w-16 h-16 bg-gray-100 flex-shrink-0 rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={() => handleProductClick(item.id)}
+                                >
                                     <img src={item.image_url || item.image} alt={item.name} className="w-full h-full object-cover" />
                                 </div>
-                                <div className="flex-1">
-                                    <h4 className="font-playfair font-medium text-gray-900">{item.name}</h4>
-                                    <p className="text-xs text-gray-500">{item.brand}</p>
+                                <div className="flex-1 min-w-0">
+                                    <h4
+                                        className="font-playfair font-medium text-gray-900 cursor-pointer hover:underline truncate"
+                                        onClick={() => handleProductClick(item.id)}
+                                    >
+                                        {item.name}
+                                    </h4>
+                                    <p className="text-xs text-gray-500">{item.brands?.name || item.brand}</p>
                                     <p className="text-xs font-semibold mt-1">${item.price}</p>
                                 </div>
                                 <button onClick={() => { onAddToCart(item); onClose(); }} className="p-2 bg-black text-white rounded-full hover:scale-105 transition-transform">

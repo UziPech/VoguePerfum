@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, ShoppingBag, Trash2, Minus, Plus, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { CartItem } from '../types';
 
 interface CartDrawerProps {
@@ -21,6 +22,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     onRemove,
     onUpdateQuantity
 }) => {
+    const navigate = useNavigate();
+
+    const handleProductClick = (productId: number | string) => {
+        onClose();
+        navigate(`/product/${productId}`);
+    };
+
     if (!isOpen) return null;
 
     // WhatsApp Checkout
@@ -64,18 +72,26 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     ) : (
                         cart.map((item) => (
                             <div key={item.id} className="flex gap-4">
-                                <div className="w-24 h-28 bg-gray-100 flex-shrink-0 overflow-hidden">
+                                <div
+                                    className="w-24 h-28 bg-gray-100 flex-shrink-0 overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={() => handleProductClick(item.id)}
+                                >
                                     <img src={item.image_url || item.image} alt={item.name} className="w-full h-full object-cover" />
                                 </div>
-                                <div className="flex-1 flex flex-col justify-between py-1">
+                                <div className="flex-1 flex flex-col justify-between py-1 min-w-0">
                                     <div>
                                         <div className="flex justify-between items-start">
-                                            <h3 className="font-medium text-sm text-gray-900 tracking-wide font-playfair">{item.name}</h3>
-                                            <button onClick={() => onRemove(item.id)} className="text-gray-400 hover:text-black transition-colors">
+                                            <h3
+                                                className="font-medium text-sm text-gray-900 tracking-wide font-playfair cursor-pointer hover:underline truncate pr-2"
+                                                onClick={() => handleProductClick(item.id)}
+                                            >
+                                                {item.name}
+                                            </h3>
+                                            <button onClick={() => onRemove(item.id)} className="text-gray-400 hover:text-black transition-colors flex-shrink-0">
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
-                                        <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-1">{item.brand}</p>
+                                        <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-1">{item.brands?.name || item.brand}</p>
                                     </div>
                                     <div className="flex justify-between items-center mt-2">
                                         <div className="flex items-center border border-gray-300">
