@@ -13,18 +13,14 @@ const registerUser = async (req, res) => {
 
     try {
         // 1. Check if user already exists (using Admin API)
-        const { data: existingUsers, error: searchError } = await supabase.auth.admin.listUsers();
+        const { data: existingUser } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('email', email)
+            .maybeSingle();
 
-        if (searchError) {
-            console.error('Error checking existing users:', searchError);
-            // Proceed to signUp anyway if search fails, or handle error
-        } else {
-            // Filter out soft-deleted users (deleted_at is not null)
-            const activeUsers = existingUsers.users.filter(u => !u.deleted_at);
-            const userExists = activeUsers.some(u => u.email === email);
-            if (userExists) {
-                return res.status(409).json({ error: 'Este correo electrónico ya está registrado.' });
-            }
+        if (existingUser) {
+            return res.status(409).json({ error: 'Este correo electrónico ya está registrado.' });
         }
 
 

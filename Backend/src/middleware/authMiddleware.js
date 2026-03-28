@@ -58,8 +58,7 @@ const requireAdmin = async (req, res, next) => {
         const role = req.user.user_metadata?.role || 'customer';
 
         if (role !== 'admin') {
-            // DEBUG: Comentar en producción si bloquea testing
-            // return res.status(403).json({ error: 'Access forbidden: Admins only' });
+            return res.status(403).json({ error: 'Access forbidden: Admins only' });
         }
 
         next();

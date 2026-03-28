@@ -32,7 +32,7 @@ router.post('/auth/register', registerUser);
 router.post('/auth/login', loginUser);
 
 // Dashboard Routes
-router.get('/dashboard/stats', getDashboardStats);
+router.get('/dashboard/stats', authenticateUser, requireAdmin, getDashboardStats);
 const getActivityLogs = require('../features/dashboard/queries/getActivityLogs');
 router.get('/dashboard/activity-logs', authenticateUser, requireAdmin, getActivityLogs);
 
