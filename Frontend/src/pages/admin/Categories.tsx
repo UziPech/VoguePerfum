@@ -1,12 +1,34 @@
-import React from 'react';
-import { Plus } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Plus, Search, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { DataTable } from '../../components/admin/DataTable';
 import { useGetCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation } from '../../store/api/catalogApi';
 import { useAppSelector } from '../../store/hooks';
+import { fuzzyMatchAny } from '../../utils/fuzzyMatch';
 
 export const Categories: React.FC = () => {
     const { data: categories = [], isLoading } = useGetCategoriesQuery(undefined);
     const { user } = useAppSelector((state) => state.auth);
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 10;
+
+    // Búsqueda inteligente con fuzzyMatch
+    const allCategories = Array.isArray(categories) ? categories : [];
+    const filteredCategories = useMemo(() => {
+        if (!searchQuery.trim()) return allCategories;
+        return allCategories.filter((cat: any) =>
+            fuzzyMatchAny(searchQuery, [cat.name, cat.slug])
+        );
+    }, [searchQuery, allCategories]);
+
+    // Paginación client-side
+    const totalFiltered = filteredCategories.length;
+    const totalPages = Math.ceil(totalFiltered / ITEMS_PER_PAGE);
+    const paginatedCategories = filteredCategories.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
 
     const columns = [
         { header: 'Nombre', accessor: 'name' as const },
@@ -21,10 +43,10 @@ export const Categories: React.FC = () => {
         },
     ];
 
-    const [isModalOpen, setIsModalOpen] = React.useState(false);
-    const [newCategoryName, setNewCategoryName] = React.useState('');
-    const [justification, setJustification] = React.useState('');
-    const [editingId, setEditingId] = React.useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [justification, setJustification] = useState('');
+    const [editingId, setEditingId] = useState<string | null>(null);
 
     const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
     const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
@@ -77,10 +99,21 @@ export const Categories: React.FC = () => {
         setEditingId(null);
     };
 
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold text-gray-800">Categorías</h1>
+                <div>
+                    <h1 className="text-3xl font-serif text-gray-900">Categorías</h1>
+                    <p className="text-gray-500 mt-1">Gestiona las categorías de tus perfumes</p>
+                </div>
 
                 {user?.role === 'admin' && (
                     <button
@@ -98,13 +131,65 @@ export const Categories: React.FC = () => {
                 )}
             </div>
 
-            <DataTable
-                data={categories}
-                columns={columns}
-                isLoading={isLoading}
-                onEdit={handleEdit}
-                onDelete={(item) => handleDelete(item.id)}
-            />
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
+                    <div className="relative flex-1 max-w-md">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Buscar categoría..."
+                            className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                            value={searchQuery}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                        />
+                    </div>
+                    <span className="text-sm text-gray-400 self-center">
+                        {searchQuery.trim()
+                            ? `${totalFiltered} resultado${totalFiltered !== 1 ? 's' : ''} de ${allCategories.length}`
+                            : `${allCategories.length} categorías en total`
+                        }
+                    </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                    <DataTable
+                        data={paginatedCategories}
+                        columns={columns}
+                        onEdit={handleEdit}
+                        onDelete={(item) => handleDelete(item.id)}
+                    />
+                </div>
+
+                {totalPages > 1 && (
+                    <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                        <p className="text-xs text-gray-500">
+                            Página {currentPage} de {totalPages}
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="p-1 rounded hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                <ChevronLeft className="w-5 h-5 text-gray-600" />
+                            </button>
+                            <span className="text-sm text-gray-600 self-center px-2">
+                                {currentPage}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="p-1 rounded hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                <ChevronRight className="w-5 h-5 text-gray-600" />
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
 
             {/* Create/Edit Category Modal */}
             {isModalOpen && (

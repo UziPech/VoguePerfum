@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Product, CartItem, Category } from '../types';
 import { useGetProductsQuery, useGetCartQuery, useGetWishlistQuery, useAddToCartMutation, useUpdateCartItemMutation, useRemoveFromCartMutation, useAddToWishlistMutation, useRemoveFromWishlistMutation, useGetCategoriesQuery } from '../src/store/api/catalogApi';
 import { useAppSelector } from '../src/store/hooks';
+import { fuzzyMatchAny } from '../src/utils/fuzzyMatch';
 
 export function useShop() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -156,13 +157,13 @@ export function useShop() {
     const products: Product[] = allProducts;
 
     // Filtering (Search only - Category is now server-side)
+    // Búsqueda inteligente: tokens + prefijos (ej. "vic sec" → Victoria's Secret)
     const filteredProducts = useMemo(() => {
-        // We filter the loaded products by search query
-        return products.filter(product => {
+        if (!searchQuery.trim()) return products;
+        return products.filter((product: any) => {
             const brandName = product.brands?.name || product.brand || '';
-            const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                brandName.toLowerCase().includes(searchQuery.toLowerCase());
-            return matchesSearch;
+            const categoryName = product.categories?.name || '';
+            return fuzzyMatchAny(searchQuery, [product.name, brandName, categoryName]);
         });
     }, [searchQuery, products]);
 

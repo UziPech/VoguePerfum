@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useGetBrandsQuery, useCreateBrandMutation, useDeleteBrandMutation } from '../../store/api/catalogApi';
-import { Loader2, Plus, Search } from 'lucide-react';
+import { Loader2, Plus, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { DataTable } from '../../components/admin/DataTable';
+import { fuzzyMatchAny } from '../../utils/fuzzyMatch';
 
 export const Brands: React.FC = () => {
     const { data: brands, isLoading } = useGetBrandsQuery();
@@ -10,6 +11,8 @@ export const Brands: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newBrandName, setNewBrandName] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 10;
 
     const handleCreateBrand = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,12 +38,25 @@ export const Brands: React.FC = () => {
         }
     };
 
-    const filteredBrands = brands?.filter((brand: any) =>
-        brand.name.toLowerCase().includes(searchQuery.toLowerCase())
-    ) || [];
+    // Búsqueda inteligente con fuzzyMatch
+    const allBrands = brands || [];
+    const filteredBrands = useMemo(() => {
+        if (!searchQuery.trim()) return allBrands;
+        return allBrands.filter((brand: any) =>
+            fuzzyMatchAny(searchQuery, [brand.name])
+        );
+    }, [searchQuery, allBrands]);
+
+    // Paginación client-side
+    const totalFiltered = filteredBrands.length;
+    const totalPages = Math.ceil(totalFiltered / ITEMS_PER_PAGE);
+    const paginatedBrands = filteredBrands.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
 
     const columns = [
-        { header: 'ID', accessor: 'id' as keyof any }, // Cast to secure type later
+        { header: 'ID', accessor: 'id' as keyof any },
         { header: 'Nombre', accessor: 'name' as keyof any },
         {
             header: 'Creado',
@@ -73,26 +89,62 @@ export const Brands: React.FC = () => {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-4 border-b border-gray-100">
-                    <div className="relative max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
+                    <div className="relative flex-1 max-w-md">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
                             type="text"
                             placeholder="Buscar marca..."
-                            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                            className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                setCurrentPage(1);
+                            }}
                         />
                     </div>
+                    <span className="text-sm text-gray-400 self-center">
+                        {searchQuery.trim()
+                            ? `${totalFiltered} resultado${totalFiltered !== 1 ? 's' : ''} de ${allBrands.length}`
+                            : `${allBrands.length} marcas en total`
+                        }
+                    </span>
                 </div>
 
                 <div className="overflow-x-auto">
                     <DataTable
-                        data={filteredBrands}
+                        data={paginatedBrands}
                         columns={columns}
                         onDelete={(item) => handleDelete(item.id)}
                     />
                 </div>
+
+                {totalPages > 1 && (
+                    <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                        <p className="text-xs text-gray-500">
+                            Página {currentPage} de {totalPages}
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="p-1 rounded hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                <ChevronLeft className="w-5 h-5 text-gray-600" />
+                            </button>
+                            <span className="text-sm text-gray-600 self-center px-2">
+                                {currentPage}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="p-1 rounded hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                <ChevronRight className="w-5 h-5 text-gray-600" />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Create Brand Modal */}

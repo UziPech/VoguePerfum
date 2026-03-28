@@ -7,22 +7,22 @@ import { useAppSelector } from '../../store/hooks';
 export const Products: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [inputValue, setInputValue] = useState('');
-    const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const ITEMS_PER_PAGE = 10;
 
-    // Debounce: espera 400ms después de que el usuario deja de escribir
+    // Debounce: espera 300ms después de que el usuario deja de escribir
     useEffect(() => {
         const timer = setTimeout(() => {
-            setSearchQuery(inputValue);
+            setDebouncedSearch(inputValue);
             setCurrentPage(1);
-        }, 400);
+        }, 300);
         return () => clearTimeout(timer);
     }, [inputValue]);
 
     const { data, isLoading, isFetching } = useGetProductsQuery({
         page: currentPage,
         limit: ITEMS_PER_PAGE,
-        search: searchQuery || undefined
+        search: debouncedSearch || undefined
     });
     const { data: brands } = useGetBrandsQuery();
     const { data: categories } = useGetCategoriesQuery();
@@ -198,9 +198,15 @@ export const Products: React.FC = () => {
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                         />
+                        {isFetching && debouncedSearch && (
+                            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />
+                        )}
                     </div>
                     <span className="text-sm text-gray-400 self-center">
-                        {meta.total} productos en total
+                        {debouncedSearch
+                            ? `${meta.total} resultado${meta.total !== 1 ? 's' : ''}`
+                            : `${meta.total} productos en total`
+                        }
                     </span>
                 </div>
 
@@ -217,8 +223,8 @@ export const Products: React.FC = () => {
                     <div className="px-6 py-4 border-t border-gray-100 
                         flex items-center justify-between">
                         <p className="text-xs text-gray-500">
-                            Página {meta.page} de {meta.pages} 
-                            — {meta.total} productos
+                            Página {meta.page} de {meta.pages}
+                            {debouncedSearch ? ` — ${meta.total} resultado${meta.total !== 1 ? 's' : ''}` : ` — ${meta.total} productos`}
                         </p>
                         <div className="flex gap-2">
                             <button
