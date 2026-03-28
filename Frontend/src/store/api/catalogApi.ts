@@ -45,10 +45,12 @@ export const catalogApi = createApi({
             }),
         }),
         getProducts: builder.query({
-            query: ({ page = 1, limit = 12, category_slug, search }: any = {}) => ({
-                url: '/products',
-                params: { page, limit, category_slug, search },
-            }),
+            query: ({ page = 1, limit = 12, category_slug, search }: any = {}) => {
+                const params: Record<string, any> = { page, limit };
+                if (category_slug) params.category_slug = category_slug;
+                if (search && search.trim()) params.search = search.trim();
+                return { url: '/products', params };
+            },
             providesTags: ['Products'],
         }),
         getProduct: builder.query({

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Search, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { DataTable } from '../../components/admin/DataTable';
 import { useGetProductsQuery, useGetBrandsQuery, useGetCategoriesQuery, useCreateProductMutation, useUpdateProductMutation, useDeleteProductMutation } from '../../store/api/catalogApi';
@@ -6,8 +6,18 @@ import { useAppSelector } from '../../store/hooks';
 
 export const Products: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
+    const [inputValue, setInputValue] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const ITEMS_PER_PAGE = 10;
+
+    // Debounce: espera 400ms después de que el usuario deja de escribir
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setSearchQuery(inputValue);
+            setCurrentPage(1);
+        }, 400);
+        return () => clearTimeout(timer);
+    }, [inputValue]);
 
     const { data, isLoading, isFetching } = useGetProductsQuery({
         page: currentPage,
@@ -185,11 +195,8 @@ export const Products: React.FC = () => {
                             className="w-full pl-9 pr-4 py-2 border border-gray-200 
                                 rounded-lg focus:outline-none focus:ring-2 
                                 focus:ring-black text-sm"
-                            value={searchQuery}
-                            onChange={(e) => {
-                                setSearchQuery(e.target.value);
-                                setCurrentPage(1);
-                            }}
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
                         />
                     </div>
                     <span className="text-sm text-gray-400 self-center">

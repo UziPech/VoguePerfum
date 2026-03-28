@@ -3,7 +3,9 @@ const supabase = require('../../../config/supabase');
 // Query: GetProducts
 const getProducts = async (req, res) => {
     try {
-        const { page = 1, limit = 12, category_slug, search } = req.query;
+        const { page: rawPage = 1, limit: rawLimit = 12, category_slug, search } = req.query;
+        const page = parseInt(rawPage);
+        const limit = parseInt(rawLimit);
         const from = (page - 1) * limit;
         const to = from + limit - 1;
 
