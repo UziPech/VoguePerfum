@@ -112,6 +112,8 @@ export const ProductDetails = () => {
                                 src={product.image_url || product.image}
                                 alt={product.name}
                                 className="w-full h-full object-cover object-center"
+                                loading="eager"
+                                decoding="async"
                             />
                             {(product.is_new || product.isNew) && (
                                 <span className="absolute top-4 left-4 bg-black text-white text-xs uppercase font-bold px-3 py-1 rounded-full tracking-widest">

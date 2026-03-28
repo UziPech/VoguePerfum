@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Heart, ShoppingCart, Star } from 'lucide-react';
 import { Product } from '../types';
 import { useNavigate } from 'react-router-dom';
@@ -19,6 +19,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     className = ""
 }) => {
     const navigate = useNavigate();
+    const [imageLoaded, setImageLoaded] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     return (
         <div
@@ -27,10 +29,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         >
             {/* Image Container */}
             <div className="relative aspect-square w-full bg-gray-100 mb-3 overflow-hidden rounded-lg">
+                {/* Skeleton */}
+                {!imageLoaded && !imageError && (
+                    <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+                )}
+                {/* Fallback error */}
+                {imageError && (
+                    <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+                        <span className="text-xs text-gray-400">Sin imagen</span>
+                    </div>
+                )}
                 <img
                     src={product.image_url || product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                    className={`w-full h-full object-cover object-center transition-all duration-500 group-hover:scale-105
+                        ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    loading="lazy"
+                    decoding="async"
+                    onLoad={() => setImageLoaded(true)}
+                    onError={() => { setImageError(true); setImageLoaded(true); }}
                 />
                 {/* Overlay on hover */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />

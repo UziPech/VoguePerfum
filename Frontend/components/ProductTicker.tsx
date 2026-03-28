@@ -8,7 +8,9 @@ interface ProductTickerProps {
 
 export const ProductTicker: React.FC<ProductTickerProps> = ({ products, onAddToCart }) => {
     // Duplicate products to ensure seamless scrolling
-    const tickerProducts = [...products, ...products, ...products];
+    const MAX_TICKER_ITEMS = 20;
+    const slicedProducts = products.slice(0, MAX_TICKER_ITEMS);
+    const tickerProducts = [...slicedProducts, ...slicedProducts, ...slicedProducts];
 
     // Calculate duration based on number of items to ensure consistent speed
     // ~2 seconds per item in the ticker seems readable
@@ -38,6 +40,8 @@ export const ProductTicker: React.FC<ProductTickerProps> = ({ products, onAddToC
                                 src={product.image_url || product.image}
                                 alt={product.name}
                                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
+                                loading="lazy"
+                                decoding="async"
                             />
                             <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <span className="text-[10px] bg-white/90 px-2 py-1 uppercase tracking-widest font-bold text-black border border-black/10 shadow-sm">
