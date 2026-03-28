@@ -3,10 +3,6 @@ const supabase = require('../../../config/supabase');
 // Query: GetProducts
 const getProducts = async (req, res) => {
     try {
-        console.log('[getProducts] req.query completo:', req.query);
-        console.log('[getProducts] search value:', req.query.search);
-        console.log('[getProducts] search type:', typeof req.query.search);
-
         const { page: rawPage = 1, limit: rawLimit = 12, category_slug, search } = req.query;
         const page = parseInt(rawPage);
         const limit = parseInt(rawLimit);
@@ -29,8 +25,9 @@ const getProducts = async (req, res) => {
             query = query.eq('categories.slug', category_slug);
         }
 
-        if (search) {
-            query = query.ilike('name', `%${search}%`);
+        if (search && search.trim()) {
+            const searchTerm = search.trim();
+            query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
         }
 
         const { data: products, error, count } = await query
