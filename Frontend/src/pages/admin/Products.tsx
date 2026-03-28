@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
-import { Plus, Search, Loader2 } from 'lucide-react';
+import { Plus, Search, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { DataTable } from '../../components/admin/DataTable';
 import { useGetProductsQuery, useGetBrandsQuery, useGetCategoriesQuery, useCreateProductMutation, useUpdateProductMutation, useDeleteProductMutation } from '../../store/api/catalogApi';
 import { useAppSelector } from '../../store/hooks';
 
 export const Products: React.FC = () => {
-    const { data, isLoading } = useGetProductsQuery({ page: 1, limit: 100 });
+    const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState('');
+    const ITEMS_PER_PAGE = 10;
+
+    const { data, isLoading, isFetching } = useGetProductsQuery({
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+        search: searchQuery || undefined
+    });
     const { data: brands } = useGetBrandsQuery();
     const { data: categories } = useGetCategoriesQuery();
     const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
@@ -14,6 +22,7 @@ export const Products: React.FC = () => {
 
     const { user } = useAppSelector((state) => state.auth);
     const products = data?.data || [];
+    const meta = data?.meta || { total: 0, page: 1, pages: 1 };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -166,7 +175,27 @@ export const Products: React.FC = () => {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                {/* Search bar could go here */}
+                <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
+                    <div className="relative flex-1 max-w-md">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 
+                            w-4 h-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Buscar producto o marca..."
+                            className="w-full pl-9 pr-4 py-2 border border-gray-200 
+                                rounded-lg focus:outline-none focus:ring-2 
+                                focus:ring-black text-sm"
+                            value={searchQuery}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                        />
+                    </div>
+                    <span className="text-sm text-gray-400 self-center">
+                        {meta.total} productos en total
+                    </span>
+                </div>
 
                 <div className="overflow-x-auto">
                     <DataTable
@@ -176,6 +205,37 @@ export const Products: React.FC = () => {
                         onDelete={(item) => handleDelete(item.id)}
                     />
                 </div>
+
+                {meta.pages > 1 && (
+                    <div className="px-6 py-4 border-t border-gray-100 
+                        flex items-center justify-between">
+                        <p className="text-xs text-gray-500">
+                            Página {meta.page} de {meta.pages} 
+                            — {meta.total} productos
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1 || isFetching}
+                                className="p-1 rounded hover:bg-gray-100 
+                                    disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                <ChevronLeft className="w-5 h-5 text-gray-600" />
+                            </button>
+                            <span className="text-sm text-gray-600 self-center px-2">
+                                {currentPage}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(meta.pages, p + 1))}
+                                disabled={currentPage === meta.pages || isFetching}
+                                className="p-1 rounded hover:bg-gray-100 
+                                    disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                <ChevronRight className="w-5 h-5 text-gray-600" />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Create/Edit Product Modal */}

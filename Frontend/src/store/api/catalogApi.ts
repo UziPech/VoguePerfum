@@ -45,9 +45,9 @@ export const catalogApi = createApi({
             }),
         }),
         getProducts: builder.query({
-            query: ({ page = 1, limit = 12, category_slug }: any = {}) => ({
+            query: ({ page = 1, limit = 12, category_slug, search }: any = {}) => ({
                 url: '/products',
-                params: { page, limit, category_slug },
+                params: { page, limit, category_slug, search },
             }),
             providesTags: ['Products'],
         }),

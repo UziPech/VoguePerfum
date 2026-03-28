@@ -3,7 +3,7 @@ const supabase = require('../../../config/supabase');
 // Query: GetProducts
 const getProducts = async (req, res) => {
     try {
-        const { page = 1, limit = 12, category_slug } = req.query;
+        const { page = 1, limit = 12, category_slug, search } = req.query;
         const from = (page - 1) * limit;
         const to = from + limit - 1;
 
@@ -21,6 +21,10 @@ const getProducts = async (req, res) => {
 
         if (category_slug) {
             query = query.eq('categories.slug', category_slug);
+        }
+
+        if (search) {
+            query = query.ilike('name', `%${search}%`);
         }
 
         const { data: products, error, count } = await query
