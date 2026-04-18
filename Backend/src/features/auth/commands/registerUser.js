@@ -24,8 +24,15 @@ const registerUser = async (req, res) => {
         }
 
 
-        // 2. Create user
-        const { data, error } = await supabase.auth.signUp({
+        // 2. Create user (with a temporary client to avoid poisoning global state)
+        const { createClient } = require('@supabase/supabase-js');
+        const authSupabase = createClient(
+            process.env.SUPABASE_URL,
+            process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY,
+            { auth: { persistSession: false, autoRefreshToken: false } }
+        );
+
+        const { data, error } = await authSupabase.auth.signUp({
             email,
             password,
             options: {

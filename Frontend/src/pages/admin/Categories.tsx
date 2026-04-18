@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Search, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Plus, Search, ChevronLeft, ChevronRight, Loader2, X } from 'lucide-react';
 import { DataTable } from '../../components/admin/DataTable';
 import { useGetCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation } from '../../store/api/catalogApi';
 import { useAppSelector } from '../../store/hooks';
 import { fuzzyMatchAny } from '../../utils/fuzzyMatch';
 
 export const Categories: React.FC = () => {
-    const { data: categories = [], isLoading } = useGetCategoriesQuery(undefined);
+    const { data: categories = [], isLoading, refetch } = useGetCategoriesQuery(undefined);
     const { user } = useAppSelector((state) => state.auth);
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -50,7 +50,8 @@ export const Categories: React.FC = () => {
 
     const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
     const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
-    const [deleteCategory] = useDeleteCategoryMutation();
+    const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
+    const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -81,15 +82,21 @@ export const Categories: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleDelete = async (id: string) => {
-        if (window.confirm('¿Estás seguro de eliminar esta categoría?')) {
-            try {
-                await deleteCategory(id).unwrap();
-            } catch (error) {
-                console.error('Failed to delete category:', error);
-                alert('Error al eliminar categoría');
-            }
+    const confirmDelete = async () => {
+        if (!deleteConfirmId) return;
+        try {
+            await deleteCategory(deleteConfirmId).unwrap();
+            setDeleteConfirmId(null);
+            refetch();
+        } catch (error) {
+            console.error('Failed to delete category:', error);
+            alert('Error al eliminar categoría');
+            setDeleteConfirmId(null);
         }
+    };
+
+    const handleDelete = (id: string) => {
+        setDeleteConfirmId(id);
     };
 
     const handleCloseModal = () => {
@@ -242,6 +249,44 @@ export const Categories: React.FC = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Custom Delete Confirmation Modal */}
+            {deleteConfirmId && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-fade-in">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-bold text-gray-900">Confirmar Eliminación</h2>
+                            <button onClick={() => setDeleteConfirmId(null)} className="text-gray-400 hover:text-gray-600">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <p className="text-gray-600 mb-6">
+                            ¿Estás seguro de que deseas eliminar esta categoría? Esta acción no se puede deshacer.
+                        </p>
+                        <div className="flex justify-end gap-3">
+                            <button 
+                                onClick={() => setDeleteConfirmId(null)}
+                                className="px-4 py-2 text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                onClick={confirmDelete}
+                                disabled={isDeleting}
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                            >
+                                {isDeleting ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" /> Eliminando...
+                                    </>
+                                ) : (
+                                    'Eliminar'
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

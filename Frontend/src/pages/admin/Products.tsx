@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Search, Loader2, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { DataTable } from '../../components/admin/DataTable';
 import { useGetProductsQuery, useGetBrandsQuery, useGetCategoriesQuery, useCreateProductMutation, useUpdateProductMutation, useDeleteProductMutation } from '../../store/api/catalogApi';
 import { useAppSelector } from '../../store/hooks';
@@ -19,7 +19,9 @@ export const Products: React.FC = () => {
         return () => clearTimeout(timer);
     }, [inputValue]);
 
-    const { data, isLoading, isFetching } = useGetProductsQuery({
+    const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+    const { data, isLoading, isFetching, refetch } = useGetProductsQuery({
         page: currentPage,
         limit: ITEMS_PER_PAGE,
         search: debouncedSearch || undefined
@@ -28,7 +30,7 @@ export const Products: React.FC = () => {
     const { data: categories } = useGetCategoriesQuery();
     const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
     const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
-    const [deleteProduct] = useDeleteProductMutation();
+    const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
     const { user } = useAppSelector((state) => state.auth);
     const products = data?.data || [];
@@ -47,15 +49,22 @@ export const Products: React.FC = () => {
         justification: ''
     });
 
-    const handleDelete = async (id: string) => {
-        if (window.confirm('¿Estás seguro de eliminar este producto?')) {
-            try {
-                await deleteProduct(id).unwrap();
-            } catch (error) {
-                console.error('Failed to delete product:', error);
-                alert('Error al eliminar producto');
-            }
+    const confirmDelete = async () => {
+        if (!deleteConfirmId) return;
+        try {
+            await deleteProduct(deleteConfirmId).unwrap();
+            setDeleteConfirmId(null);
+            // Refetch to guarantee UI update
+            refetch();
+        } catch (error) {
+            console.error('Failed to delete product:', error);
+            alert('Error al eliminar producto');
+            setDeleteConfirmId(null);
         }
+    };
+
+    const handleDelete = (id: string) => {
+        setDeleteConfirmId(id);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -424,6 +433,44 @@ export const Products: React.FC = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Custom Delete Confirmation Modal */}
+            {deleteConfirmId && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-fade-in">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-bold text-gray-900">Confirmar Eliminación</h2>
+                            <button onClick={() => setDeleteConfirmId(null)} className="text-gray-400 hover:text-gray-600">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <p className="text-gray-600 mb-6">
+                            ¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.
+                        </p>
+                        <div className="flex justify-end gap-3">
+                            <button 
+                                onClick={() => setDeleteConfirmId(null)}
+                                className="px-4 py-2 text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                onClick={confirmDelete}
+                                disabled={isDeleting}
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                            >
+                                {isDeleting ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" /> Eliminando...
+                                    </>
+                                ) : (
+                                    'Eliminar'
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

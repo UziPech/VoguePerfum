@@ -1,3 +1,4 @@
+const { createClient } = require('@supabase/supabase-js');
 const supabase = require('../../../config/supabase');
 
 // Command: LoginUser
@@ -7,7 +8,14 @@ const loginUser = async (req, res) => {
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        // Create a temporary client so we don't poison the global service_role client's in-memory session
+        const authSupabase = createClient(
+            process.env.SUPABASE_URL,
+            process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY,
+            { auth: { persistSession: false, autoRefreshToken: false } }
+        );
+
+        const { data, error } = await authSupabase.auth.signInWithPassword({
             email,
             password
         });

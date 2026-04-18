@@ -46,16 +46,21 @@ const requireAdmin = async (req, res, next) => {
 
         // Consultar tabla profiles o metadata (dependiendo de tu implementación)
         // Opción A: Usar metadata del usuario (más rápido si syncronizas roles)
-        // const role = req.user.user_metadata.role;
+        // Opción A: Usar metadata del usuario
+        let role = req.user.user_metadata?.role || 'customer';
 
-        // Opción B: Consultar tabla 'profiles' (más seguro y consistente)
-        // Nota: Como estamos con service_role en 'supabase' config, tenemos acceso total
-        // Pero auth.getUser verifica el token.
-
-        // Para simplificar MVP: Vamos a checar el user_metadata o una tabla profiles.
-        // Si no creaste profiles aun en Fase 2, usaremos un hardcode o check simple.
-        // Asumiremos que el rol viene en user_metadata por ahora para MVP
-        const role = req.user.user_metadata?.role || 'customer';
+        // Opción B: Consultar tabla 'profiles' para la fuente final de la verdad
+        if (role !== 'admin') {
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', req.user.id)
+                .single();
+                
+            if (profile && profile.role === 'admin') {
+                role = 'admin';
+            }
+        }
 
         if (role !== 'admin') {
             return res.status(403).json({ error: 'Access forbidden: Admins only' });

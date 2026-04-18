@@ -1,14 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { useGetBrandsQuery, useCreateBrandMutation, useDeleteBrandMutation } from '../../store/api/catalogApi';
-import { Loader2, Plus, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, Plus, Search, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { DataTable } from '../../components/admin/DataTable';
 import { fuzzyMatchAny } from '../../utils/fuzzyMatch';
 
 export const Brands: React.FC = () => {
-    const { data: brands, isLoading } = useGetBrandsQuery();
+    const { data: brands, isLoading, refetch } = useGetBrandsQuery();
     const [createBrand, { isLoading: isCreating }] = useCreateBrandMutation();
-    const [deleteBrand] = useDeleteBrandMutation();
+    const [deleteBrand, { isLoading: isDeleting }] = useDeleteBrandMutation();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
     const [newBrandName, setNewBrandName] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -27,15 +28,21 @@ export const Brands: React.FC = () => {
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (window.confirm('¿Estás seguro de eliminar esta marca?')) {
-            try {
-                await deleteBrand(id).unwrap();
-            } catch (error) {
-                console.error('Failed to delete brand:', error);
-                alert('Error al eliminar marca');
-            }
+    const confirmDelete = async () => {
+        if (!deleteConfirmId) return;
+        try {
+            await deleteBrand(deleteConfirmId).unwrap();
+            setDeleteConfirmId(null);
+            refetch();
+        } catch (error) {
+            console.error('Failed to delete brand:', error);
+            alert('Error al eliminar marca');
+            setDeleteConfirmId(null);
         }
+    };
+
+    const handleDelete = (id: string) => {
+        setDeleteConfirmId(id);
     };
 
     // Búsqueda inteligente con fuzzyMatch
@@ -182,6 +189,44 @@ export const Brands: React.FC = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Custom Delete Confirmation Modal */}
+            {deleteConfirmId && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-fade-in">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-bold text-gray-900">Confirmar Eliminación</h2>
+                            <button onClick={() => setDeleteConfirmId(null)} className="text-gray-400 hover:text-gray-600">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <p className="text-gray-600 mb-6">
+                            ¿Estás seguro de que deseas eliminar esta marca? Esta acción no se puede deshacer.
+                        </p>
+                        <div className="flex justify-end gap-3">
+                            <button 
+                                onClick={() => setDeleteConfirmId(null)}
+                                className="px-4 py-2 text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                onClick={confirmDelete}
+                                disabled={isDeleting}
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                            >
+                                {isDeleting ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" /> Eliminando...
+                                    </>
+                                ) : (
+                                    'Eliminar'
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
