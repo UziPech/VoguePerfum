@@ -24,12 +24,17 @@ export const HeroSection = () => {
                 </h2>
 
                 {/* Main Title - Mixed Typography */}
-                <div className="flex flex-col md:block items-center justify-center mb-10 animate-in fade-in zoom-in duration-1000 delay-150">
-                    <span className="text-5xl md:text-7xl lg:text-8xl font-bold text-white tracking-tighter mr-0 md:mr-4">
-                        VOGUE
-                    </span>
-                    <span className="text-5xl md:text-7xl lg:text-8xl font-playfair italic text-white font-medium">
-                        Perfum
+                <div className="flex flex-col md:flex-row items-center justify-center mb-10 animate-in fade-in zoom-in duration-1000 delay-150">
+                    <div className="flex items-baseline justify-center">
+                        <span className="text-5xl md:text-7xl lg:text-8xl xl:text-[110px] font-bold text-white tracking-tighter">
+                            GLOW
+                        </span>
+                        <span className="text-4xl md:text-6xl lg:text-7xl xl:text-[80px] font-playfair italic text-white ml-3 md:ml-5 font-light">
+                            &
+                        </span>
+                    </div>
+                    <span className="text-6xl md:text-8xl lg:text-[110px] xl:text-[140px] font-playfair italic text-white font-medium mt-2 md:mt-0 md:ml-6">
+                        essence
                     </span>
                 </div>
 

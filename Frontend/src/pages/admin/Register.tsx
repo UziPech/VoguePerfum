@@ -75,10 +75,10 @@ export const Register: React.FC = () => {
             <div className="max-w-md w-full bg-white rounded-xl shadow-lg border border-gray-100 p-8">
                 <div className="text-center mb-8">
                     {/* Placeholder for Logo */}
-                    <img src="/logo.png" alt="Vogue Perfum" className="h-16 mx-auto mb-4 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
+                    <img src="/logo.png" alt="Glow & essence" className="h-16 mx-auto mb-4 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
 
                     <h1 className="text-3xl font-bold text-gray-900 uppercase tracking-[0.2em] font-sans">Crear Cuenta</h1>
-                    <p className="text-gray-500 mt-2 text-sm tracking-wide">Únete a Vogue Perfum</p>
+                    <p className="text-gray-500 mt-2 text-sm tracking-wide">Únete a Glow & essence</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">

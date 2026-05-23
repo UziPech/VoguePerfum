@@ -39,8 +39,8 @@ export const BrandPresentation = () => {
 
                         <p className="text-gray-500 text-sm md:text-base leading-relaxed mb-12 font-light tracking-wide">
                            ​La Excelencia de la Perfumería en un solo lugar
-​Vogue Perfum es tu aliado en fragancias premium 1.1, cosméticos de alta calidad y accesorios que marcan la diferencia. Nos comprometemos a ofrecerte solo lo mejor del mercado, asegurando que cada compra sea una inversión en tu imagen.
-​Calidad, Duración y Estilo. Eso es Vogue Perfum.
+​Glow & essence es tu aliado en fragancias premium 1.1, cosméticos de alta calidad y accesorios que marcan la diferencia. Nos comprometemos a ofrecerte solo lo mejor del mercado, asegurando que cada compra sea una inversión en tu imagen.
+​Calidad, Duración y Estilo. Eso es Glow & essence.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-6 items-center md:items-start mt-8">

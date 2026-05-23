@@ -46,9 +46,9 @@ export const Login: React.FC = () => {
             <div className="max-w-md w-full bg-white rounded-xl shadow-lg border border-gray-100 p-8">
                 <div className="text-center mb-8">
                     {/* Placeholder for Logo - User to place logo.png in public folder */}
-                    <img src="/logo.png" alt="Vogue Perfum" className="h-16 mx-auto mb-4 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
+                    <img src="/logo.png" alt="Glow & essence" className="h-16 mx-auto mb-4 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
 
-                    <h1 className="text-3xl font-bold text-gray-900 uppercase tracking-[0.2em] font-sans">Vogue Perfum</h1>
+                    <h1 className="text-3xl font-bold text-gray-900 uppercase tracking-[0.2em] font-sans">Glow & essence</h1>
                     <p className="text-gray-500 mt-2 text-sm tracking-wide">Se parte de nuestra comunidad</p>
                 </div>
 

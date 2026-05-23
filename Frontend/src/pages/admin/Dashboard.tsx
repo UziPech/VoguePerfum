@@ -34,7 +34,7 @@ export const Dashboard: React.FC = () => {
         <div className="space-y-8">
             <header className="mb-8">
                 <h1 className="text-4xl font-serif font-bold text-gray-900">Dashboard</h1>
-                <p className="text-gray-500 mt-2 font-serif italic">Bienvenido al panel de administración de Vogue Perfum.</p>
+                <p className="text-gray-500 mt-2 font-serif italic">Bienvenido al panel de administración de Glow & essence.</p>
             </header>
 
             {/* Stats Grid - Mobile optimized with 2 columns */}

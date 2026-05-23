@@ -62,7 +62,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                             onClick={onLogoClick}
                             className="absolute left-1/2 transform -translate-x-1/2 text-xl md:text-2xl font-bold tracking-[0.2em] text-center uppercase cursor-pointer hover:opacity-80 transition-opacity"
                         >
-                            Vogue Perfum<sup className="text-[10px] md:text-xs">®</sup>
+                            Glow & essence<sup className="text-[10px] md:text-xs">®</sup>
                         </button>
 
                         {/* Right Side Actions */}
